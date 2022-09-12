@@ -1,0 +1,139 @@
+from typing import Callable
+
+import numpy as np
+
+
+def fitness(order: np.ndarray, dists: np.ndarray, rows: int, columns: int):
+    ret = 0
+    order = np.array(order).reshape(rows, columns)
+    for i in range(rows):
+        for j in range(columns):
+            for k in range(rows):
+                for l in range(columns):
+                    point_distance = np.sqrt(np.square(i - j) + np.square(k - l)) + 1e-6
+                    value_distance = dists[order[i, j], order[k, l]]
+                    ret += value_distance / point_distance
+    return ret,
+
+
+class HOF:
+    """
+    Hall of Fame: class for registering better and better individuals.
+    """
+
+    def __init__(self, logging_freq=10, verb=True):
+        """
+        Initialize a HOF
+        :param logging_freq: How often should the progress be saved and logged
+        :param verb: Should progress be printed
+        """
+        self.hashC: int = 211
+        self.logging_freq: int = logging_freq
+        self.verb: bool = verb
+        self.generation: int = 0
+        self.fitnesses: list[float] = []
+        self.generations: list[int] = []
+        self.searched: dict[int, float] = dict()
+        self.best_fitness: float = float("infinity")
+        self.best_individual: np.ndarray = None
+
+    def add(self, individual: np.ndarray, individual_fitness: float) -> bool:
+        """
+        Add the given individual to the HOF
+        :param individual:
+        :param individual_fitness:
+        :return: True if it was added, False if it was there already
+        """
+        hashed = self.hash(individual)
+        if hashed in self.searched and self.searched[hashed] == individual_fitness:
+            return False
+        self.searched[hashed] = individual_fitness
+        if self.best_fitness > individual_fitness:
+            self.best_fitness = individual_fitness
+            self.best_individual = individual
+            self.fitnesses.append(individual_fitness)
+            self.generations.append(self.generation)
+        if self.generation % self.logging_freq == 0:
+            self.fitnesses.append(individual_fitness)
+            self.generations.append(self.generation)
+            if self.verb:
+                print(self.generation, "\t", self.best_fitness)
+        self.generation += 1
+        return True
+
+    def hash(self, individual) -> int:
+        """
+        Hash the given individual (this is then used for dictionary keys)
+        :param individual: The individual to be hashed
+        :return: hash
+        """
+        ret = 0
+        for i in range(individual.shape[0]):
+            ret += i * individual[i] * self.hashC
+        return ret
+
+
+def neighbours(individual: np.ndarray, x: int, y: int, rows: int, columns: int) -> list[np.ndarray]:
+    """
+    Return all individual's that can be obtained by swapping the (x,y) cell
+        with any of its neighbours.
+    :param individual: The base individual
+    :param x: X coordinate of cell to be swapped
+    :param y: Y coordinate of cell to be swapped
+    :param rows: Number of rows for this matrix
+    :param columns: Number of columns for this matrix
+    :return: list of neighbouring individuals
+    """
+    directions = ((1, 1), (1, 0), (0, 1), (1, -1), (0, -1), (-1, 1), (-1, 0), (-1, -1))
+    order = np.array(individual).reshape(rows, columns)
+    ret = []
+    for dx, dy in directions:
+        movedX, movedY = x + dx, y + dy
+        if movedX < 0 or movedX >= rows or movedY < 0 or movedY >= columns:
+            continue
+        new_order = order.copy()
+        new_order[[x, x + dx], [y, y + dy]] = new_order[[x + dx, x], [y + dy, y]]
+        ret.append(new_order.flatten())
+    return ret
+
+
+def HCA(individual: np.ndarray,
+        fitness_function: Callable[[np.ndarray], tuple[float]],
+        neighbours_function: Callable[[np.ndarray, int, int, int, int], list[np.ndarray]],
+        rows: int,
+        columns: int,
+        hof: HOF):
+    """
+    Run the hill climbing algorithm.
+    :param individual: The individual from which the HCA should be started
+    :param fitness_function: The fitness function to be minimized
+    :param neighbours_function: Function to obtain all neighbours to the given individual
+        with a given base cell to search from
+    :type neighbours_function: Callable(individual, x, y, rows, columns) -> list[neighbours]
+    :param rows: Number of rows in the matrix
+    :param columns: Number of columns in the matrix
+    :param hof: Hall of fame to which the best individuals should be added
+    :return: None
+    """
+    best_fitness = fitness_function(individual)[0]
+    orig_fitness = best_fitness
+    got_better = False
+    if not hof.add(individual, best_fitness):
+        return
+    for x in range(rows):
+        for y in range(columns):
+            best_child = None
+            for n in neighbours_function(individual, x, y, rows, columns):
+                this_fitness = fitness_function(n)[0]
+                if this_fitness < best_fitness:
+                    got_better = True
+                    best_fitness = this_fitness
+                    best_child = n
+            if type(best_child) is np.ndarray and hof.add(best_child, best_fitness):
+                individual = best_child
+    if got_better:
+        print(f"Got better by {orig_fitness - best_fitness}")
+        HCA(individual, fitness_function, neighbours_function, rows, columns, hof)
+
+
+
