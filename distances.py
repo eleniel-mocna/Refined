@@ -9,7 +9,6 @@ def distances_parallel(all_samples: np.ndarray,
                        verbosity: int = 5):
     """
     Compute the distance matrix for given samples
-
     :param all_samples: matrix of samples of shape (n_samples, n_dimensions),
         meaning every sample is a flat vector of n_dimensions
     :param n_jobs: number of cores in which this calculation should run
@@ -17,35 +16,10 @@ def distances_parallel(all_samples: np.ndarray,
         samples should be used for the calculation.
         By default, use 1., if this takes too long, lower this number.
     :param verbosity: Verbosity to be passes to joblib.Parallel (0 for none, 10 for all)
-
     :return: distance matrix of shape (n_dimensions, n_dimensions)
 
     """
-
-    def compute_one_dimension(i: int,
-                              samples: np.ndarray):
-        def distance_inner(x, y):
-            return np.sum(np.abs(x - y))
-
-        return np.array([
-            np.sum(
-                list(
-                    map(distance_inner, samples[:, i], samples[:, j])
-                )
-            )
-            for j in range((samples.shape[1]))])
-
-    if n_jobs == 0:
-        n_jobs = multiprocessing.cpu_count()
-    if used_split == 1:
-        selected_samples = all_samples
-    else:
-        n_selected = int(all_samples.shape[0] * used_split)
-        selected_samples = all_samples[np.random.choice(np.arange(0, all_samples.shape[0]), n_selected)]
-    executor: joblib.Parallel = joblib.Parallel(n_jobs=n_jobs, verbose=verbosity)
-    ret = executor(
-        joblib.delayed(compute_one_dimension)(i, selected_samples) for i in range(selected_samples.shape[1]))
-    return np.array(ret)
+    return 1 - np.corrcoef(all_samples.T)
 
 
 def distances(samples,
