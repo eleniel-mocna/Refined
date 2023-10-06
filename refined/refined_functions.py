@@ -1,11 +1,17 @@
-from typing import Callable
+from typing import Tuple
 
+import numba as nb
 import numpy as np
+from numpy.typing import NDArray
 
 
-def fitness(order: np.ndarray, dists: np.ndarray, rows: int, columns: int):
+@nb.jit(nopython=True)
+def fitness(order: NDArray[int],
+            dists: np.ndarray,
+            rows: int,
+            columns: int) -> Tuple[float]:
     ret = 0
-    order = np.array(order).reshape(rows, columns)
+    order = order.reshape(rows, columns)
     for i in range(rows):
         for j in range(columns):
             for k in range(rows):
@@ -47,6 +53,8 @@ class HOF:
         hashed = self.hash(individual)
         if hashed in self.searched and self.searched[hashed] == individual_fitness:
             return False
+        if self.generation > 1000:
+            return False
         self.searched[hashed] = individual_fitness
         if self.best_fitness > individual_fitness:
             self.best_fitness = individual_fitness
@@ -73,7 +81,12 @@ class HOF:
         return ret
 
 
-def neighbours(individual: np.ndarray, x: int, y: int, rows: int, columns: int) -> list[np.ndarray]:
+@nb.jit(nopython=True)
+def neighbours(individual: np.ndarray,
+               x: int,
+               y: int,
+               rows: int,
+               columns: int) -> list[np.ndarray]:
     """
     Return all individual's that can be obtained by swapping the (x,y) cell
         with any of its neighbours.
@@ -85,55 +98,50 @@ def neighbours(individual: np.ndarray, x: int, y: int, rows: int, columns: int) 
     :return: list of neighbouring individuals
     """
     directions = ((1, 1), (1, 0), (0, 1), (1, -1), (0, -1), (-1, 1), (-1, 0), (-1, -1))
-    order = np.array(individual).reshape(rows, columns)
+    order = individual.reshape(rows, columns)
     ret = []
     for dx, dy in directions:
         movedX, movedY = x + dx, y + dy
         if movedX < 0 or movedX >= rows or movedY < 0 or movedY >= columns:
             continue
-        new_order = order.copy()
-        new_order[[x, x + dx], [y, y + dy]] = new_order[[x + dx, x], [y + dy, y]]
+        new_order: np.ndarray = order.copy()
+        tmp = new_order[x, y]
+        new_order[x, y] = new_order[x + dx, y + dy]
+        new_order[x + dx, y + dy] = tmp
         ret.append(new_order.flatten())
     return ret
 
 
-def HCA(individual: np.ndarray,
-        fitness_function: Callable[[np.ndarray], tuple[float]],
-        neighbours_function: Callable[[np.ndarray, int, int, int, int], list[np.ndarray]],
-        rows: int,
-        columns: int,
-        hof: HOF):
-    """
-    Run the hill climbing algorithm.
-    :param individual: The individual from which the HCA should be started
-    :param fitness_function: The fitness function to be minimized
-    :param neighbours_function: Function to obtain all neighbours to the given individual
-        with a given base cell to search from
-    :type neighbours_function: Callable(individual, x, y, rows, columns) -> list[neighbours]
-    :param rows: Number of rows in the matrix
-    :param columns: Number of columns in the matrix
-    :param hof: Hall of fame to which the best individuals should be added
-    :return: None
-    """
-    best_fitness = fitness_function(individual)[0]
-    orig_fitness = best_fitness
-    got_better = False
-    if not hof.add(individual, best_fitness):
-        return
-    for x in range(rows):
-        for y in range(columns):
-            best_child = None
-            for n in neighbours_function(individual, x, y, rows, columns):
-                this_fitness = fitness_function(n)[0]
-                if this_fitness < best_fitness:
-                    got_better = True
-                    best_fitness = this_fitness
-                    best_child = n
-            if type(best_child) is np.ndarray and hof.add(best_child, best_fitness):
-                individual = best_child
-    if got_better:
-        print(f"Got better by {orig_fitness - best_fitness}")
-        HCA(individual, fitness_function, neighbours_function, rows, columns, hof)
+@nb.jit(nopython=True)
+def fitness_refined(x: NDArray[int],
+                    dists: np.ndarray,
+                    rows: int,
+                    cols: int) -> float:
+    return fitness(x, dists, rows, cols)[0]
 
 
-
+def HCARefined(individual: NDArray[int],
+               rows: int,
+               columns: int,
+               dists: np.ndarray) -> Tuple[np.ndarray, float]:
+    for i in range(1000):
+        best_fitness = fitness_refined(individual, dists, rows, columns)
+        orig_fitness = best_fitness
+        if i % 10 == 0:
+            print(i, ":", best_fitness, "->", individual)
+        for x in range(rows):
+            for y in range(columns):
+                best_child: np.ndarray = np.array(())
+                for n in neighbours(individual, x, y, rows, columns):
+                    this_fitness = fitness_refined(n, dists, rows, columns)
+                    if this_fitness < best_fitness:
+                        best_fitness = this_fitness
+                        best_child = n
+                if best_child.shape == (0,):  # We didn't find a better neighbour
+                    pass
+                else:
+                    individual = best_child
+        if orig_fitness > best_fitness:
+            continue
+        else:
+            return individual, best_fitness

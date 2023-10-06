@@ -2,7 +2,7 @@ from unittest import TestCase, skip
 
 import numpy as np
 
-import distances
+from refined import distances
 
 
 class Test(TestCase):

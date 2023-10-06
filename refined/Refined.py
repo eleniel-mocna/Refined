@@ -2,10 +2,12 @@ import datetime
 import os
 import sys
 
+import joblib
 import numpy as np
+from numpy.typing import NDArray
 
-import distances
-from refined_functions import HOF, HCA, fitness, neighbours
+from refined import distances
+from refined_functions import HOF, HCARefined
 
 
 class Refined:
@@ -20,7 +22,7 @@ class Refined:
                  distances_logging: int = 10,
                  distances_n_jobs: int = 0,
                  hca_logging: int = 10,
-                 hca_starts: int = 10,
+                 hca_starts: int = 6,
                  ):
         """
         Create an object for the REFINED algorithm
@@ -84,7 +86,7 @@ class Refined:
         :param samples: Array of shape (n_samples, n_dimensions)
         :return: Array of shape (n_samples, rows, cols)
         """
-        return Refined.transform_from_vector(samples, self.hof.best_individual, self.rows, self.cols)
+        return Refined.transform_from_vector(samples, self.best_individual, self.rows, self.cols)
 
     def _check_inputs(self):
         if len(self.samples.shape) != 2 or self.samples.shape[1] != self.rows * self.cols:
@@ -116,7 +118,7 @@ class Refined:
                                                   verbosity=self.distances_logging,
                                                   used_split=self.distances_split,
                                                   n_jobs=self.distances_n_jobs)
-        np.save(os.path.join(self.path, "dists.npy"), self.dists)
+        np.save(os.path.join(self.path, "../dists.npy"), self.dists)
 
     def _compute_refined(self):
         if type(self.dists) is not np.ndarray:
@@ -124,8 +126,22 @@ class Refined:
             self._log(error_msg)
             raise AttributeError(error_msg)
         self.hof = HOF(logging_freq=self.hca_logging)
-        for i in range(self.hca_starts):
-            individual = np.arange(self.rows * self.cols)
-            np.random.shuffle(individual)
-            HCA(individual, lambda x: fitness(x, self.dists, self.rows, self.cols), neighbours, self.rows, self.cols, self.hof)
+        executor: joblib.Parallel = joblib.Parallel(n_jobs=15, verbose=100, backend='threading')
+        hofs = executor(
+            joblib.delayed(lambda x: self._compute_1_refined())(i) for i in range(self.hca_starts))
+        best_fitness = float("infinity")
+        best_individual = None
+        for hof in hofs:
+            if hof.best_fitness < best_fitness:
+                best_fitness = hof.best_fitness
+                best_individual = hof.berst_individual
+        self.best_individual = best_individual
         np.save(os.path.join(self.path, "best_individual.npy"), self.hof.best_individual)
+
+    def _compute_1_refined(self) -> HOF:
+        hof = HOF(logging_freq=self.hca_logging)
+        individual: NDArray[int] = np.arange(self.rows * self.cols)
+        np.random.shuffle(individual)
+        best_individual, best_score = HCARefined(individual, self.rows, self.cols, self.dists)
+        hof.add(best_individual, best_score)
+        return hof

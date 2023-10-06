@@ -12,7 +12,7 @@ class TestRefined(TestCase):
         cols = 10
         n_samples = 100
         samples = generate_samples(n_samples, rows * cols)[0]
-        refined = Refined(samples, rows, cols, "test_folder")
+        refined = Refined(samples, rows, cols, "../test_folder")
         refined.run()
         self.assertTrue(refined.transform(samples).shape == (n_samples, rows, cols))
 
