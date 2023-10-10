@@ -1,1 +1,4 @@
 /junk/
+data
+*.pckl
+*.npy
