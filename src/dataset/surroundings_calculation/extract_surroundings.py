@@ -2,7 +2,7 @@ import os
 import pickle
 
 from config.constants import CLASS, SURROUNDINGS_FILE, DATASET_PICKLE_FILE
-from dataset.surroundings_extraction.surroundings_extractor import SurroundingsExtractor
+from dataset.surroundings_calculation.surroundings_extractor import SurroundingsExtractor
 
 
 def main():
