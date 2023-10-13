@@ -3,6 +3,8 @@ from pathlib import Path
 DATA_FOLDER = Path("data")
 RAW_DATA_FOLDER = DATA_FOLDER / "raw"
 EXTRACTED_DATA_FOLDER = DATA_FOLDER / "extracted"
+MODELS_FOLDER = DATA_FOLDER / "models"
+MODEL_RFC_BASELINE_FOLDER = MODELS_FOLDER / "rfc_baseline"
 
 
 X_POSITION = "xyz.x"

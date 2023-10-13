@@ -11,6 +11,24 @@
         "holo4k",
         "joined"
       ]
+    },
+    "train_dataset": {
+      "type": "string",
+      "enum": [
+        "chen11",
+        "coach420",
+        "holo4k",
+        "joined"
+      ]
+    },
+    "test_dataset": {
+      "type": "string",
+      "enum": [
+        "chen11",
+        "coach420",
+        "holo4k",
+        "joined"
+      ]
     }
   }
 }

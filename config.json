@@ -1,3 +1,5 @@
 {
-  "extract_dataset": "*"
+  "extract_dataset": "*",
+  "train_dataset": "chen11",
+  "test_dataset": "holo4k"
 }
