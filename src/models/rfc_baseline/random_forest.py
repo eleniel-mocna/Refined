@@ -3,20 +3,19 @@ import pickle
 from typing import List
 
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
-from rfc_baseline.RandomForestModel import RandomForestModel
+from config.config import Config
+from models.evaluation.ModelEvaluator import ModelEvaluator
+from models.rfc_baseline.RandomForestModel import RandomForestModel
 
 
 def main():
-    print("Loading data...")
-    folder = "random_forest"
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    output_file = os.path.join(folder, "metrics.txt")
-    with open("allArffs.pckl", "rb") as file:
+    config = Config.get_instance()
+    with open(config.train_dataset, "rb") as file:
         arffs = pickle.load(file)
     print("Data loaded.")
 
@@ -24,9 +23,11 @@ def main():
     labels = list(map(lambda x: x["@@class@@"] == b'1', arffs))
     data = list(map(lambda x: x.drop("@@class@@", axis=1), arffs))
     random_forest = generate_RFC_model(data, labels)
-    pickle_file_name = os.path.join(folder, "RFC.pckl")
-    print(f"Saving RFC to {pickle_file_name}")
-    save_RFC_model(random_forest, pickle_file_name)
+    random_forest.save_model()
+    (ModelEvaluator(random_forest)
+     .calculate_basic_metrics()
+     .calculate_session_metrics()
+     .save_to_file(random_forest.get_result_folder()/"metrics.txt"))
 
 
 def get_best_cutoff(data, labels, random_forest):
@@ -52,11 +53,11 @@ def generate_RFC_model(data: List[np.ndarray], labels: List[np.ndarray]) -> Rand
     """
     train_data, test_data, train_labels, test_labels = \
         train_test_split(data, labels, test_size=0.20, random_state=42)
-    y_train = train_labels
-    y_test = test_labels
+    y_train = pd.concat(train_labels)
+    y_test = pd.concat(test_labels)
 
-    X_train = train_data
-    X_test = test_data
+    X_train = pd.concat(train_data)
+    X_test = pd.concat(test_data)
     print("Data prepared, training RFC...")
     random_forest: RandomForestClassifier = RandomForestClassifier(max_depth=5, n_jobs=15, verbose=3, n_estimators=100)
     random_forest.fit(X_train, y_train)
@@ -64,16 +65,6 @@ def generate_RFC_model(data: List[np.ndarray], labels: List[np.ndarray]) -> Rand
     best_cutoff = get_best_cutoff(X_test, y_test, random_forest)
     print(best_cutoff)
     return RandomForestModel(random_forest, best_cutoff)
-
-
-def save_RFC_model(model: RandomForestModel, file: str):
-    """
-    Save a RandomForestModel to a pickle file.
-    @param model: RandomForestModel
-    @param file: pickle file
-    """
-    with open(file, "wb") as file:
-        pickle.dump(model, file)
 
 
 def load_RFC_model(file: str) -> RandomForestModel:

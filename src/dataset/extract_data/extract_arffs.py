@@ -3,6 +3,7 @@ import os
 import pickle
 import shutil
 from glob import glob
+from pathlib import Path
 from typing import List
 
 import joblib
@@ -11,7 +12,6 @@ from pandas import DataFrame
 from scipy.io.arff import loadarff
 
 from config.config import Config
-from config.constants import EXTRACTED_DATA_FOLDER
 
 
 def _unpack(file: str) -> str:
@@ -29,7 +29,7 @@ def _load_arffs(path, n_jobs=8, verbosity=0) -> List[DataFrame]:
         joblib.delayed(lambda x: pd.DataFrame(loadarff(_unpack(x))[0]))(file) for file in all_files)
 
 
-def _extract_arffs(original_folder: str, pckl_file: str):
+def _extract_arffs(original_folder: Path, pckl_file: Path):
     """
         Unpack all arffs from the `original_folder` into the `pckl_file`.
     @param original_folder: folder from which all arffs recursively are extracted
@@ -44,6 +44,6 @@ if __name__ == '__main__':
     config = Config.default()
     for dataset in config.extract_dataset:
         print(f"Extracting {dataset}...")
-        output_filename = f"{os.path.basename(dataset)}.pckl"
-        _extract_arffs(dataset, EXTRACTED_DATA_FOLDER / output_filename)
-        print(f"Extracted {dataset} to {output_filename}.")
+        output_file_path = Config.get_extracted_path(os.path.basename(dataset))
+        _extract_arffs(dataset, output_file_path)
+        print(f"Extracted {dataset} to {output_file_path}.")
