@@ -11,7 +11,7 @@ Useful links:
 - [x] Draft of models for the thesis [T]
 
 ## Assignment
-- [ ] (01.02.2024) Write the thesis proposal [T]
+- [ ] (01.03.2024) Write the thesis proposal [T]
 - [ ] (08.03.2024) Submit the proposal and do all the bureaucratic stuff [T]
 
 ## Codebase
