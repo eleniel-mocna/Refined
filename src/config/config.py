@@ -3,7 +3,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-from config.constants import DATASET_NAMES, RAW_DATA_FOLDER, EXTRACTED_DATA_FOLDER, DEFAULT_CONFIG_FILE, MODELS_FOLDER
+from config.constants import DATASET_NAMES, RAW_DATA_FOLDER, EXTRACTED_DATA_FOLDER, DEFAULT_CONFIG_FILE, MODELS_FOLDER, \
+    SURROUNDINGS_DATA_FOLDER
 
 
 class Config:
@@ -27,12 +28,24 @@ class Config:
         return data
 
     @property
-    def train_dataset(self) -> Path:
+    def train_extracted(self) -> Path:
         return Config.get_extracted_path(self.__config_data['train_dataset'])
 
     @property
-    def test_dataset(self) -> Path:
+    def test_extracted(self) -> Path:
         return Config.get_extracted_path(self.__config_data['test_dataset'])
+
+    @property
+    def train_surroundings(self) -> Path:
+        return Config.get_surroundings_path(self.__config_data['train_dataset'])
+
+    @property
+    def test_surroundings(self) -> Path:
+        return Config.get_surroundings_path(self.__config_data['test_dataset'])
+
+    @property
+    def surroundings_size(self) -> int:
+        return self.__config_data['surroundings_size']
 
     @staticmethod
     def default() -> 'Config':
@@ -69,6 +82,10 @@ class Config:
     @staticmethod
     def get_extracted_path(dataset_name: str) -> Path:
         return EXTRACTED_DATA_FOLDER / f"{dataset_name}.pckl"
+
+    @staticmethod
+    def get_surroundings_path(dataset_name: str) -> Path:
+        return SURROUNDINGS_DATA_FOLDER / f"{dataset_name}.pckl"
 
     @staticmethod
     def get_model_folder(model_name: str) -> Path:

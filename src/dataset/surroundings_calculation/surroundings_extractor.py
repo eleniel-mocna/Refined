@@ -27,7 +27,10 @@ class SurroundingsExtractor:
 
     @staticmethod
     def get_complete_dataset(protein: pd.DataFrame, surrounding_size: int) -> List[pd.DataFrame]:
-        n_samples = protein[CLASS].shape[0]
+        try:
+            n_samples = protein[CLASS].shape[0]
+        except KeyError:
+            n_samples = protein.shape[0]
         return SurroundingsExtractor.get_n_first_dataset(protein, surrounding_size, n_samples)
 
     @staticmethod
@@ -44,11 +47,13 @@ class SurroundingsExtractor:
 
     @staticmethod
     def extract_surroundings(proteins: List[pd.DataFrame], surrounding_size: int, name="surroundings_dataset",
-                             function=get_balanced_dataset) -> Tuple[np.ndarray, np.ndarray]:
+                             function=None) -> Tuple[np.ndarray, np.ndarray]:
+        if function is None:
+            function = SurroundingsExtractor.get_complete_dataset
         pd_samples: List[pd.DataFrame] = []
         labels: List[pd.DataFrame] = []
         times = []
-        for i in range(len(proteins)):
+        for i in range(2):
             print(f"Extracting from protein {i}/{len(proteins)}")
             start_time = time()
             new_samples = function(proteins[i], surrounding_size)
@@ -58,6 +63,7 @@ class SurroundingsExtractor:
             times.append(total_time)
             print(f"  took: {total_time}s, average: {np.mean(times)}s, ETA: {np.mean(times) * (len(proteins) - i - 1)}")
             if i % 100 == 0:
+                # TODO: Remove saving progress or move it to some other directory. Or make caching smarter.
                 file_name = f"{name}_{i}.pckl"
                 print(f"Saving progress to {file_name}")
                 with open(file_name, "wb") as file:

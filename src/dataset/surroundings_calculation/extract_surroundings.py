@@ -1,24 +1,26 @@
-import os
 import pickle
 
-from config.constants import CLASS, SURROUNDINGS_FILE, DATASET_PICKLE_FILE
+from config.config import Config
+from config.constants import CLASS
 from dataset.surroundings_calculation.surroundings_extractor import SurroundingsExtractor
 
 
 def main():
-    folder = "refined"
-    print("Loading the original dataset")
-    with open(DATASET_PICKLE_FILE, "rb") as file:
+    config = Config.get_instance()
+    input_path = config.test_extracted
+    output_path = config.test_surroundings
+
+    # print("Loading the original dataset")
+    with open(input_path, "rb") as file:
         arffs = pickle.load(file)
-    print("Original dataset loaded, modifying labels...")
-    for i in range(arffs.__len__()):
-        arffs[i][CLASS] = arffs[i][CLASS] == b'1'
-    print("Labels modified, generating surrounding dataset...")
+
+    for i in range(3):
+        arffs[i][CLASS] = (arffs[i][CLASS] == b'1')
+
     surroundings_dataset = SurroundingsExtractor.extract_surroundings(arffs, 30)
-    print("Dataset generated, pickling...")
-    with open(os.path.join(folder, SURROUNDINGS_FILE), "wb") as file:
+
+    with open(output_path, "wb") as file:
         pickle.dump(surroundings_dataset, file)
-    print("Dataset saved succesfully.")
 
 
 if __name__ == '__main__':
