@@ -29,6 +29,10 @@
         "holo4k",
         "joined"
       ]
+    },
+    "surroundings_size": {
+      "type": "integer",
+      "minimum": 2
     }
   }
 }
