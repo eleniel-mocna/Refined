@@ -10,12 +10,12 @@ from sklearn.model_selection import train_test_split
 
 from config.config import Config
 from models.evaluation.ModelEvaluator import ModelEvaluator
-from models.rfc_baseline.RandomForestModel import RandomForestModel
+from models.rfc_baseline.random_forest_model import RandomForestModel
 
 
 def main():
     config = Config.get_instance()
-    with open(config.train_dataset, "rb") as file:
+    with open(config.train_extracted, "rb") as file:
         arffs = pickle.load(file)
     print("Data loaded.")
 
