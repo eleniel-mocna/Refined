@@ -1,11 +1,12 @@
-import os
 import sys
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
 
-from refined.RFCSurrounding import RFCSurrounding
+from config.config import Config
+from models.big_rfc.RFCSurrounding import RFCSurrounding
+from models.evaluation.ModelEvaluator import ModelEvaluator
 
 np.set_printoptions(threshold=sys.maxsize)
 import pickle
@@ -71,15 +72,20 @@ def load_BigRFC_model(file: str) -> RFCSurrounding:
 
 
 def main():
-    print("Loading data...")
-    folder = "refined/RFC"
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    with open("surroundings_dataset_1700.pckl", "rb") as file:
+    config = Config.get_instance()
+    with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
+
+    # with open("surroundings_dataset_1700.pckl", "rb") as file:
+    #     data, labels = pickle.load(file)
     rfc_surrounding_model = generate_BigRFC_model(np.array(data), np.array(labels))
-    with open(os.path.join(folder, "RFCSurrounding.pckl"), "wb") as file:
-        pickle.dump(rfc_surrounding_model, file)
+    rfc_surrounding_model.save_model()
+    (ModelEvaluator(rfc_surrounding_model)
+     .calculate_basic_metrics()
+     .calculate_session_metrics()
+     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
+    # with open(os.path.join(folder, "RFCSurrounding.pckl"), "wb") as file:
+    #     pickle.dump(rfc_surrounding_model, file)
 
 
 if __name__ == '__main__':
