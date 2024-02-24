@@ -11,12 +11,13 @@ Useful links:
 - [x] Draft of models for the thesis [T]
 
 ## Assignment
-- [ ] (01.03.2024) Write the thesis proposal [T]
+- [x] (01.03.2024) Write the thesis proposal [T]
 - [ ] (08.03.2024) Submit the proposal and do all the bureaucratic stuff [T]
 
 ## Codebase
-- [ ] (01.03.2024) Finish Surroundings computation integration [C]
-- [ ] (08.03.2024) Finish BigRFC + REFINED integration [C]
+- [x] (01.03.2024) Finish Surroundings computation integration [C]
+- [x] (08.03.2024) Finish BigRFC integration [C]
+- [ ] (08.03.2024) Finish REFINED integration [C]
 - [ ] (15.03.2024) Run the experiments [C]
 - [ ] (22.03.2024) Evaluate the results [C]
 - [ ] (29.03.2024) Write documentation [C]
