@@ -1,8 +1,8 @@
 from pathlib import Path
+ROOT = Path(__file__).parent.parent.parent
+DEFAULT_CONFIG_FILE = ROOT / "config.json"
 
-DEFAULT_CONFIG_FILE = Path("config.json")
-
-DATA_FOLDER = Path("data")
+DATA_FOLDER = ROOT / "data"
 RAW_DATA_FOLDER = DATA_FOLDER / "raw"
 EXTRACTED_DATA_FOLDER = DATA_FOLDER / "extracted"
 SURROUNDINGS_DATA_FOLDER = DATA_FOLDER / "surroundings"
