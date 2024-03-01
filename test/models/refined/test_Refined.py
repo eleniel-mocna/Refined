@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 from numpy import ndarray
 
-from Refined import Refined
+from models.refined.Refined import Refined
 
 
 class TestRefined(TestCase):

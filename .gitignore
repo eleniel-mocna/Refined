@@ -2,3 +2,8 @@
 data
 *.pckl
 *.npy
+venv
+wslvenv
+data
+*.pckl
+*.npy

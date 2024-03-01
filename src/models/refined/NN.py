@@ -3,11 +3,11 @@ import sys
 
 import numpy as np
 
-from refined.RefinedModel import RefinedModel
+from models.refined.Refined import Refined
+from models.refined.RefinedModel import RefinedModel
 
 np.set_printoptions(threshold=sys.maxsize)
 import pickle
-from refined.Refined import Refined
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.activations import relu

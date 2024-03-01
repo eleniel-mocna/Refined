@@ -1,6 +1,4 @@
 import numpy as np
-import joblib
-import multiprocessing
 
 
 def distances_parallel(all_samples: np.ndarray,

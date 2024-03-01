@@ -6,7 +6,7 @@ import joblib
 import numpy as np
 from numpy.typing import NDArray
 
-from refined import distances
+from models.refined import distances
 from refined_functions import HOF, HCARefined
 
 
