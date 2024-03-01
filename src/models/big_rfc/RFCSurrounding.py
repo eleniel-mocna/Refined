@@ -3,10 +3,10 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
 from dataset.surroundings_calculation.surroundings_extractor import SurroundingsExtractor
-from models.common.GenericProteinModel import GenericProteinModel
+from models.common.ProteinModel import ProteinModel
 
 
-class RFCSurrounding(GenericProteinModel):
+class RFCSurrounding(ProteinModel):
     @property
     def name(self) -> str:
         return "rfc_surrounding"

@@ -11,7 +11,7 @@ from config.config import Config
 from config.constants import CONFIG_JSON, MODEL_PKL
 
 
-class GenericProteinModel(ABC):
+class ProteinModel(ABC):
     result_folder: Optional[Path] = None
 
     @abstractmethod

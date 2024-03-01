@@ -1,10 +1,10 @@
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-from models.common.GenericProteinModel import GenericProteinModel
+from models.common.ProteinModel import ProteinModel
 
 
-class RandomForestModel(GenericProteinModel):
+class RandomForestModel(ProteinModel):
     @property
     def name(self) -> str:
         return "RFC_baseline"

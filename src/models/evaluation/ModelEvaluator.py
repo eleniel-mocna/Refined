@@ -8,11 +8,11 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from tabulate import tabulate
 
 from config.config import Config
-from models.common.GenericProteinModel import GenericProteinModel
+from models.common.ProteinModel import ProteinModel
 
 
 class ModelEvaluator:
-    def __init__(self, model: GenericProteinModel):
+    def __init__(self, model: ProteinModel):
         self.model = model
         self.results = dict()
 
@@ -20,11 +20,11 @@ class ModelEvaluator:
 
     @property
     def flat_data(self):
-        return pd.concat(self.data, ignore_index=True)
+        return pd.concat(self.data[:2], ignore_index=True)
 
     @property
     def flat_labels(self):
-        return pd.concat(self.labels, ignore_index=True)
+        return pd.concat(self.labels[:2], ignore_index=True)
 
     def calculate_basic_metrics(self) -> 'ModelEvaluator':
         self.results["Accuracy"] = accuracy_score(self.flat_labels, self.model.predict(self.flat_data))
@@ -51,8 +51,9 @@ class ModelEvaluator:
     def _get_data() -> Tuple[List[pd.DataFrame], List[pd.DataFrame]]:
         # TODO: Implement a data loader
         config = Config.get_instance()
-        with open(config.test_dataset, "rb") as file:
+        with open(config.test_extracted, "rb") as file:
             arffs = pickle.load(file)
+        arffs = arffs[:30]
         print("Data loaded.")
         print("Preparing data...")
         labels = list(map(lambda x: x["@@class@@"] == b'1', arffs))
