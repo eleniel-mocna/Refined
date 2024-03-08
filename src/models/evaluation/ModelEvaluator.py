@@ -17,6 +17,7 @@ class ModelEvaluator:
         self.results = dict()
 
         self.data, self.labels = ModelEvaluator._get_data()
+        self.y_pred = self.model.predict(self.flat_data)
 
     @property
     def flat_data(self):
@@ -27,11 +28,11 @@ class ModelEvaluator:
         return pd.concat(self.labels[:2], ignore_index=True)
 
     def calculate_basic_metrics(self) -> 'ModelEvaluator':
-        self.results["Accuracy"] = accuracy_score(self.flat_labels, self.model.predict(self.flat_data))
-        self.results["Precision"] = precision_score(self.flat_labels, self.model.predict(self.flat_data),
+        self.results["Accuracy"] = accuracy_score(self.flat_labels, self.y_pred)
+        self.results["Precision"] = precision_score(self.flat_labels, self.y_pred,
                                                     average='macro')
-        self.results["Recall"] = recall_score(self.flat_labels, self.model.predict(self.flat_data), average='macro')
-        self.results["F1_score"] = f1_score(self.flat_labels, self.model.predict(self.flat_data), average='macro')
+        self.results["Recall"] = recall_score(self.flat_labels, self.y_pred, average='macro')
+        self.results["F1_score"] = f1_score(self.flat_labels, self.y_pred, average='macro')
         return self
 
     def calculate_session_metrics(self) -> 'ModelEvaluator':
@@ -53,7 +54,7 @@ class ModelEvaluator:
         config = Config.get_instance()
         with open(config.test_extracted, "rb") as file:
             arffs = pickle.load(file)
-        arffs = arffs[:30]
+        arffs = arffs[:3]
         print("Data loaded.")
         print("Preparing data...")
         labels = list(map(lambda x: x["@@class@@"] == b'1', arffs))
