@@ -1,8 +1,11 @@
 import os
 import sys
+from typing import Tuple, Any
 
 import numpy as np
 
+from config.config import Config
+from models.evaluation.ModelEvaluator import ModelEvaluator
 from models.refined.Refined import Refined
 from models.refined.RefinedModel import RefinedModel
 
@@ -42,10 +45,10 @@ def generate_refined_model_from_dataset():
     return generate_refined_model(data, labels)
 
 
-def generate_refined_model(data, labels):
+def generate_refined_model(data, labels) -> tuple[RefinedModel, Any]:
     train_data, test_data, train_labels, test_labels = \
         train_test_split(data, labels, test_size=0.20, random_state=42)
-    refined = Refined(train_data, 38, 30, "temp", hca_starts=6)
+    refined = Refined(train_data, 38, 30, "temp", hca_starts=1)
     refined.run()
     refined_train_data = refined.transform(train_data)
     refined_test_data = refined.transform(test_data)
@@ -54,17 +57,20 @@ def generate_refined_model(data, labels):
     return RefinedModel(model, refined), history
 
 
-if __name__ == '__main__':
-    print("Loading data...")
-    folder = "refined/NN"
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    output_file = os.path.join(folder, "metrics.txt")
-    with open("surroundings_dataset_1700.pckl", "rb") as file:
+
+def main():
+    with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
-    data = np.array(data)
-    labels = np.array(labels)
-    refined_model, history = generate_refined_model(data, labels)
-    refined_model.save(folder)
-    with open(os.path.join(folder, "refinedModel.pckl"), "wb") as file:
-        pickle.dump(refined_model, file)
+
+    rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels))
+    rfc_surrounding_model.save_model()
+    (ModelEvaluator(rfc_surrounding_model)
+     .calculate_basic_metrics()
+     .calculate_session_metrics()
+     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
+
+config = Config.get_instance()
+
+
+if __name__ == '__main__':
+    main()

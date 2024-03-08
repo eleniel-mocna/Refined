@@ -19,8 +19,9 @@ class RefinedModel(ProteinModel):
     def predict(self, protein: pd.DataFrame) -> np.ndarray:
         input_dataset = SurroundingsExtractor.get_complete_dataset(protein, 30)
 
-        input_data = pd.concat(map(lambda x: x.drop("@@class@@", axis=1).numpy().flatten(), input_dataset))
-        return self.model.predict(self.refined.transform(input_data))
+        input_data = np.array(
+            [x.drop("@@class@@", axis=1, errors="ignore").to_numpy().flatten() for x in input_dataset])
+        return self.model.predict(self.refined.transform(input_data)).flatten()>0.5
 
     def save(self, path):
         self.model.save_weights(path + "/weights.h5")

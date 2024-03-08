@@ -134,7 +134,7 @@ class Refined:
         for hof in hofs:
             if hof.best_fitness < best_fitness:
                 best_fitness = hof.best_fitness
-                best_individual = hof.berst_individual
+                best_individual = hof.best_individual
         self.best_individual = best_individual
         np.save(os.path.join(self.path, "best_individual.npy"), self.hof.best_individual)
 
