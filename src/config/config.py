@@ -15,7 +15,7 @@ class Config:
         DO NOT CREATE THIS CLASS MANUALLY, USE `Config.create_instance()` or `Config.get_instance()` INSTEAD.
         """
         self.__config_file = config_file
-        self.__config_data = self.load_config(self.__config_file)
+        self._config_data = self.load_config(self.__config_file)
 
     @property
     def config_file(self) -> Path:
@@ -29,23 +29,23 @@ class Config:
 
     @property
     def train_extracted(self) -> Path:
-        return Config.get_extracted_path(self.__config_data['train_dataset'])
+        return Config.get_extracted_path(self._config_data['train_dataset'])
 
     @property
     def test_extracted(self) -> Path:
-        return Config.get_extracted_path(self.__config_data['test_dataset'])
+        return Config.get_extracted_path(self._config_data['test_dataset'])
 
     @property
     def train_surroundings(self) -> Path:
-        return Config.get_surroundings_path(self.__config_data['train_dataset'])
+        return Config.get_surroundings_path(self._config_data['train_dataset'])
 
     @property
     def test_surroundings(self) -> Path:
-        return Config.get_surroundings_path(self.__config_data['test_dataset'])
+        return Config.get_surroundings_path(self._config_data['test_dataset'])
 
     @property
     def surroundings_size(self) -> int:
-        return self.__config_data['surroundings_size']
+        return self._config_data['surroundings_size']
 
     @staticmethod
     def default() -> 'Config':
@@ -71,12 +71,12 @@ class Config:
         """
         @return: A list of Path objects representing the dataset files to be extracted.
         """
-        if self.__config_data['extract_dataset'] == "*":
+        if self._config_data['extract_dataset'] == "*":
             return [RAW_DATA_FOLDER / name for name in DATASET_NAMES]
-        if self.__config_data['extract_dataset'] in DATASET_NAMES:
-            return [RAW_DATA_FOLDER / self.__config_data['extract_dataset']]
+        if self._config_data['extract_dataset'] in DATASET_NAMES:
+            return [RAW_DATA_FOLDER / self._config_data['extract_dataset']]
         raise ValueError(
-            f"Unknown dataset name: {self.__config_data['extract_dataset']},"
+            f"Unknown dataset name: {self._config_data['extract_dataset']},"
             f"if you want to add a new dataset, add it to `config/constants.py`#DATASET_NAMES.")
 
     @staticmethod

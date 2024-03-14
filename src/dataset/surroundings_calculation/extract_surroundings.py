@@ -1,12 +1,15 @@
 import pickle
+import sys
+from typing import Optional
 
 from config.config import Config
 from config.constants import CLASS
 from dataset.surroundings_calculation.surroundings_extractor import SurroundingsExtractor
 
 
-def main():
+def main(dataset: Optional[str] = None):
     config = Config.get_instance()
+    config._config_data['test_dataset'] = dataset
     input_path = config.test_extracted
     output_path = config.test_surroundings
 
@@ -19,9 +22,12 @@ def main():
 
     surroundings_dataset = SurroundingsExtractor.extract_surroundings(arffs, 30)
 
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "wb") as file:
         pickle.dump(surroundings_dataset, file)
 
 
 if __name__ == '__main__':
-    main()
+    dataset_name = sys.argv[1] if len(sys.argv)>1 else None
+    dataset_name="chen11"
+    main(dataset_name)
