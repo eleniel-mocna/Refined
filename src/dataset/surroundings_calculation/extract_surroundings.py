@@ -17,7 +17,7 @@ def main(dataset: Optional[str] = None):
     with open(input_path, "rb") as file:
         arffs = pickle.load(file)
 
-    for i in range(3):
+    for i in range(len(arffs)):
         arffs[i][CLASS] = (arffs[i][CLASS] == b'1')
 
     surroundings_dataset = SurroundingsExtractor.extract_surroundings(arffs, 30)
@@ -29,5 +29,5 @@ def main(dataset: Optional[str] = None):
 
 if __name__ == '__main__':
     dataset_name = sys.argv[1] if len(sys.argv)>1 else None
-    dataset_name="chen11"
+    print(f"Dataset name: {dataset_name}")
     main(dataset_name)

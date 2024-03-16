@@ -1,14 +1,20 @@
 #!/bin/bash
 #PBS -N chen11
-#PBS -l select=1:ncpus=16:mem=32gb:scratch_local=64gb
-#PBS -l walltime=48:00:00
+#PBS -l select=1:ncpus=32:mem=64gb:scratch_local=64gb
+#PBS -l walltime=72:00:00
 #PBS -j oe
 
-cd $SCRATCH
-cp /storage/brno12-cerit/home/eleniel/refined .
-cd refined
+# shellcheck disable=SC2164
+cd "$SCRATCH"
+git clone https://github.com/eleniel-mocna/Refined
+# shellcheck disable=SC2164
+cd Refined
+module add python py-virtualenv
 python3 -m venv env
 source env/bin/activate
 pip3 install -r requirements.txt
-python3 python3 src/dataset/surroundings_calculation/extract_surroundings.py chen11
-cp -r data /storage/brno12-cerit/home/eleniel/refined/chen11_result
+mkdir data
+cp -r /storage/brno12-cerit/home/eleniel/refined/data/extracted data
+export PYTHONPATH=$PYTHONPATH:src
+python3 src/dataset/surroundings_calculation/extract_surroundings.py chen11
+cp -r data/surroundings /storage/brno12-cerit/home/eleniel/refined/chen11_result
