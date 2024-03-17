@@ -66,10 +66,4 @@ class SurroundingsExtractor:
             total_time = time() - start_time
             times.append(total_time)
             print(f"  took: {total_time}s, average: {np.mean(times)}s, ETA: {np.mean(times) * (len(proteins) - i - 1)}")
-            if i % 100 == 0:
-                # TODO: Remove saving progress or move it to some other directory. Or make caching smarter.
-                file_name = f"{name}_{i}.pckl"
-                print(f"Saving progress to {file_name}")
-                with open(file_name, "wb") as file:
-                    pickle.dump((pd_samples, labels), file)
         return np.array(pd_samples), np.array(labels)
