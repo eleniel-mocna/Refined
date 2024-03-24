@@ -1,27 +1,25 @@
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 
-from dataset.surroundings_calculation.surroundings_extractor import SurroundingsExtractor
-from models.common.ProteinModel import ProteinModel
-from models.refined.Refined import Refined
+from models.common.ProteinModel import SurroundingsProteinModel
+from models.refined.image_transformer import ImageTransformer
 
 
-class RefinedModel(ProteinModel):
+class RefinedModel(SurroundingsProteinModel):
+    def predict_surroundings(self, protein: np.ndarray) -> np.ndarray:
+        return self.model.predict(self.refined.transform(protein)).flatten() > 0.5
+
+    def predict_surroundings_proba(self, protein: np.ndarray) -> np.ndarray:
+        return self.model.predict(self.refined.transform(protein)).flatten()
+
     @property
     def name(self) -> str:
-        return "Refined"
+        return "Refined" + self.name_suffix
 
-    def __init__(self, model: tf.keras.Model, refined: Refined):
+    def __init__(self, model: tf.keras.Model, refined: ImageTransformer, name: str = ""):
         self.refined = refined
         self.model = model
-
-    def predict(self, protein: pd.DataFrame) -> np.ndarray:
-        input_dataset = SurroundingsExtractor.get_complete_dataset(protein, 30)
-
-        input_data = np.array(
-            [x.drop("@@class@@", axis=1, errors="ignore").to_numpy().flatten() for x in input_dataset])
-        return self.model.predict(self.refined.transform(input_data)).flatten()>0.5
+        self.name_suffix = name
 
     def save(self, path):
         self.model.save_weights(path + "/weights.h5")

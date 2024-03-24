@@ -1,10 +1,14 @@
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
 from models.common.ProteinModel import ProteinModel
 
 
 class RandomForestModel(ProteinModel):
+    def predict_proba(self, protein: pd.DataFrame) -> np.ndarray:
+        return self.random_forest.predict_proba(protein)[:, 1]
+
     @property
     def name(self) -> str:
         return "RFC_baseline"

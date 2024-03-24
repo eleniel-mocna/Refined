@@ -6,7 +6,7 @@ from sklearn.metrics import f1_score
 
 from config.config import Config
 from models.big_rfc.RFCSurrounding import RFCSurrounding
-from models.evaluation.ModelEvaluator import ModelEvaluator
+from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
 import pickle
@@ -42,7 +42,7 @@ def generate_BigRFC_model(data: np.ndarray, labels: np.ndarray) -> RFCSurroundin
     X_train = train_data
     X_test = test_data
     print("Data prepared, training RFC...")
-    random_forest: RandomForestClassifier = RandomForestClassifier(max_depth=5, n_jobs=15, verbose=3, n_estimators=100)
+    random_forest: RandomForestClassifier = RandomForestClassifier(max_depth=5, n_jobs=15, verbose=3, n_estimators=15)
     random_forest.fit(X_train, y_train)
     print("RFC trained, finding best cutoff...")
     best_cutoff = get_best_cutoff(X_test, y_test, random_forest)
@@ -75,17 +75,14 @@ def main():
     config = Config.get_instance()
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
+    labels = np.vectorize(booleanize)(labels)
 
-    # with open("surroundings_dataset_1700.pckl", "rb") as file:
-    #     data, labels = pickle.load(file)
     rfc_surrounding_model = generate_BigRFC_model(np.array(data), np.array(labels))
     rfc_surrounding_model.save_model()
     (ModelEvaluator(rfc_surrounding_model)
      .calculate_basic_metrics()
      .calculate_session_metrics()
      .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
-    # with open(os.path.join(folder, "RFCSurrounding.pckl"), "wb") as file:
-    #     pickle.dump(rfc_surrounding_model, file)
 
 
 if __name__ == '__main__':

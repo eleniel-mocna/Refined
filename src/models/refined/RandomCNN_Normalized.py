@@ -6,6 +6,7 @@ import numpy as np
 
 from config.config import Config
 from models.evaluation.ModelEvaluator import ModelEvaluator
+from models.refined.Random_refined import RandomRefined
 from models.refined.Refined import Refined
 from models.refined.RefinedModel import RefinedModel
 
@@ -48,13 +49,12 @@ def generate_refined_model_from_dataset():
 def generate_refined_model(data, labels) -> tuple[RefinedModel, Any]:
     train_data, test_data, train_labels, test_labels = \
         train_test_split(data, labels, test_size=0.20, random_state=42)
-    refined = Refined(train_data, 38, 30, "temp", hca_starts=1)
-    refined.run()
+    refined = RandomRefined(38, 30)
     refined_train_data = refined.transform(train_data)
     refined_test_data = refined.transform(test_data)
     model = create_model()
     history = model.fit(refined_train_data, train_labels, validation_data=(refined_test_data, test_labels), epochs=1)
-    return RefinedModel(model, refined), history
+    return RefinedModel(model, refined, "_random_normalized"), history
 
 
 

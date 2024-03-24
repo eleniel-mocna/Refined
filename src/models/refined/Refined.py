@@ -7,10 +7,11 @@ import numpy as np
 from numpy.typing import NDArray
 
 from models.refined import distances
+from models.refined.image_transformer import ImageTransformer
 from refined_functions import HOF, HCARefined
 
 
-class Refined:
+class Refined(ImageTransformer):
     hof: HOF
 
     def __init__(self,
@@ -43,6 +44,9 @@ class Refined:
         :param hca_starts: How many times should the HCA be restarted from
             a random position
         """
+        self.stds = None
+        self.means = None
+        self.fit_normalize(samples)
         self.dists: np.ndarray = None
         self.distances_n_jobs = distances_n_jobs
         self.distances_split = distances_split
@@ -52,7 +56,7 @@ class Refined:
         self.path = folder_path
         self.cols = cols
         self.rows = rows
-        self.samples = samples
+        self.samples = self.normalize(samples)
         self._prepare_folder()
         self._check_inputs()
         self._log("Computing dists")
@@ -86,7 +90,7 @@ class Refined:
         :param samples: Array of shape (n_samples, n_dimensions)
         :return: Array of shape (n_samples, rows, cols)
         """
-        return Refined.transform_from_vector(samples, self.best_individual, self.rows, self.cols)
+        return Refined.transform_from_vector(self.normalize(samples), self.best_individual, self.rows, self.cols)
 
     def _check_inputs(self):
         if len(self.samples.shape) != 2 or self.samples.shape[1] != self.rows * self.cols:
@@ -145,3 +149,11 @@ class Refined:
         best_individual, best_score = HCARefined(individual, self.rows, self.cols, self.dists)
         hof.add(best_individual, best_score)
         return hof
+
+    def fit_normalize(self, samples: np.ndarray):
+        # Normalize each column to normal(0,1) and save the values for later
+        self.means = np.mean(samples, axis=0)
+        self.stds = np.std(samples, axis=0)
+
+    def normalize(self, samples: np.ndarray) -> np.ndarray:
+        return (samples - self.means) / self.stds
