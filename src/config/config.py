@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from config.constants import DATASET_NAMES, RAW_DATA_FOLDER, EXTRACTED_DATA_FOLDER, DEFAULT_CONFIG_FILE, MODELS_FOLDER, \
-    SURROUNDINGS_DATA_FOLDER
+    SURROUNDINGS_DATA_FOLDER, PROTEIN_LENGTHS_FOLDER
 
 
 class Config:
@@ -42,6 +42,11 @@ class Config:
     @property
     def test_surroundings(self) -> Path:
         return Config.get_surroundings_path(self._config_data['test_dataset'])
+
+    @property
+    def test_lengths(self) -> List[int]:
+        with open(Config.get_lengths_path(self._config_data['test_dataset']), 'r') as f:
+            return json.load(f)
 
     @property
     def surroundings_size(self) -> int:
@@ -86,6 +91,10 @@ class Config:
     @staticmethod
     def get_surroundings_path(dataset_name: str) -> Path:
         return SURROUNDINGS_DATA_FOLDER / f"{dataset_name}.pckl"
+
+    @staticmethod
+    def get_lengths_path(dataset_name: str) -> Path:
+        return PROTEIN_LENGTHS_FOLDER / f"{dataset_name}.json"
 
     @staticmethod
     def get_model_folder(model_name: str) -> Path:
