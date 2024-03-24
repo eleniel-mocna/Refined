@@ -12,19 +12,19 @@ Useful links:
 
 ## Assignment
 - [x] (01.03.2024) Write the thesis proposal [T]
-- [ ] (08.03.2024) Submit the proposal and do all the bureaucratic stuff [T]
+- [x] (08.03.2024) Submit the proposal and do all the bureaucratic stuff [T]
 
 ## Codebase
 - [x] (01.03.2024) Finish Surroundings computation integration [C]
 - [x] (08.03.2024) Finish BigRFC integration [C]
-- [ ] (08.03.2024) Finish REFINED integration [C]
-- [ ] (15.03.2024) Run the experiments [C]
+- [x] (08.03.2024) Finish REFINED integration [C]
+- [x] (15.03.2024) Run the experiments [C]
 - [ ] (22.03.2024) Evaluate the results [C]
 - [ ] (29.03.2024) Write documentation [C]
 
 ## Thesis
-- [ ] (15.03.2024) Finish models' descriptions (theoretical background) [T]
-- [ ] (22.03.2024) Write the context (why is P2Rank important), introduction [T]
+- [x] (15.03.2024) Finish models' descriptions (theoretical background) [T]
+- [ ] (22.03.2024) Write the context (why images), introduction [T]
 - [ ] (29.03.2024) Write the results, conclusion, abstract (First draft) [T]
 - [ ] (05.04.2024) Polish up the thesis (Second draft) [T]
 - [ ] (03.05.2024) Finalize the thesis [T]
