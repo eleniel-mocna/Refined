@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
-from models.cutoff import get_best_cutoff
+from models.common.cutoff import get_best_cutoff
 from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
@@ -29,7 +29,7 @@ class RFCSurrounding(SurroundingsProteinModel):
         self.rfc: RandomForestClassifier = rfc
 
     @staticmethod
-    def from_data(data: np.ndarray, labels: np.ndarray):
+    def from_data(data: np.ndarray, labels: np.ndarray) -> 'RFCSurrounding':
         """
         Create a GeneralModel implementation using a RandomForestClassifier.
         @param data: Numpy array of atom neighborhoods

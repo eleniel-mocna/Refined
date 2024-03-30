@@ -1,13 +1,11 @@
-import os
 import sys
-from typing import Tuple, Any
+from typing import Any
 
 import numpy as np
 
 from config.config import Config
 from models.evaluation.ModelEvaluator import ModelEvaluator
 from models.refined.Random_refined import RandomRefined
-from models.refined.Refined import Refined
 from models.refined.RefinedModel import RefinedModel
 
 np.set_printoptions(threshold=sys.maxsize)
@@ -37,15 +35,6 @@ def create_model():
     return model
 
 
-def generate_refined_model_from_dataset():
-    with open("refined/data.pckl", "rb") as file:
-        data = pickle.load(file)
-
-    with open("refined/labels.pckl", "rb") as file:
-        labels = pickle.load(file)
-    return generate_refined_model(data, labels)
-
-
 def generate_refined_model(data, labels) -> tuple[RefinedModel, Any]:
     train_data, test_data, train_labels, test_labels = \
         train_test_split(data, labels, test_size=0.20, random_state=42)
@@ -55,7 +44,6 @@ def generate_refined_model(data, labels) -> tuple[RefinedModel, Any]:
     model = create_model()
     history = model.fit(refined_train_data, train_labels, validation_data=(refined_test_data, test_labels), epochs=1)
     return RefinedModel(model, refined, "_random"), history
-
 
 
 def main():
@@ -69,8 +57,8 @@ def main():
      .calculate_session_metrics()
      .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
 
-config = Config.get_instance()
 
+config = Config.get_instance()
 
 if __name__ == '__main__':
     main()

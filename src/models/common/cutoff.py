@@ -1,8 +1,8 @@
 from sklearn.metrics import f1_score
 
 
-def get_best_cutoff(data, labels, random_forest):
-    y_pred = random_forest.predict_proba(data)
+def get_best_cutoff(data, labels, predictor):
+    y_pred = predictor.predict_proba(data)
     best_cutoff = 0
     best_f1 = 0
     for i in range(1, 100):
