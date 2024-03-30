@@ -1,4 +1,3 @@
-import os
 import pickle
 from typing import List
 
@@ -27,7 +26,7 @@ def main():
     (ModelEvaluator(random_forest)
      .calculate_basic_metrics()
      .calculate_session_metrics()
-     .save_to_file(random_forest.get_result_folder()/"metrics.txt"))
+     .save_to_file(random_forest.get_result_folder() / "metrics.txt"))
 
 
 def get_best_cutoff(data, labels, random_forest):
@@ -59,7 +58,8 @@ def generate_RFC_model(data: List[np.ndarray], labels: List[np.ndarray]) -> Rand
     X_train = pd.concat(train_data)
     X_test = pd.concat(test_data)
     print("Data prepared, training RFC...")
-    random_forest: RandomForestClassifier = RandomForestClassifier(max_depth=5, n_jobs=15, verbose=3, n_estimators=100)
+    random_forest: RandomForestClassifier = RandomForestClassifier(max_depth=None, n_jobs=15, verbose=3,
+                                                                   n_estimators=200, max_features=6)
     random_forest.fit(X_train, y_train)
     print("RFC trained, finding best cutoff...")
     best_cutoff = get_best_cutoff(X_test, y_test, random_forest)

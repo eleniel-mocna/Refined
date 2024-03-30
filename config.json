@@ -1,6 +1,6 @@
 {
   "extract_dataset": "*",
   "train_dataset": "chen11",
-  "test_dataset": "holo4k",
+  "test_dataset": "coach420",
   "surroundings_size": 30
 }

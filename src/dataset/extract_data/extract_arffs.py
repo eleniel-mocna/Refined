@@ -22,11 +22,10 @@ def _unpack(file: str) -> str:
     return unpacked_file
 
 
-def _load_arffs(path, n_jobs=8, verbosity=0) -> List[DataFrame]:
+def _load_arffs(path) -> List[DataFrame]:
     all_files = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.arff.gz'))]
-    executor: joblib.Parallel = joblib.Parallel(n_jobs=n_jobs, verbose=verbosity)
-    return executor(
-        joblib.delayed(lambda x: pd.DataFrame(loadarff(_unpack(x))[0]))(file) for file in all_files)
+    ret = [pd.DataFrame(loadarff(_unpack(file))[0]) for file in all_files]
+    return ret
 
 
 def _extract_arffs(original_folder: Path, pckl_file: Path):

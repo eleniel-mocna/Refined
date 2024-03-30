@@ -2,29 +2,15 @@ import sys
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score
 
 from config.config import Config
 from models.big_rfc.RFCSurrounding import RFCSurrounding
+from models.cutoff import get_best_cutoff
 from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
 import pickle
 from sklearn.model_selection import train_test_split
-
-
-def get_best_cutoff(data, labels, random_forest):
-    y_pred = random_forest.predict_proba(data)
-    best_cutoff = 0
-    best_f1 = 0
-    for i in range(1, 100):
-        cutoff = i / 100
-        f1 = f1_score(labels, y_pred[:, 1] > cutoff)
-        if f1 > best_f1:
-            best_cutoff = cutoff
-            best_f1 = f1
-    print(f"RFC trained with f1: {best_f1}")
-    return best_cutoff
 
 
 def generate_BigRFC_model(data: np.ndarray, labels: np.ndarray) -> RFCSurrounding:

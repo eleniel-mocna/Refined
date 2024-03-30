@@ -8,7 +8,7 @@ from numpy.typing import NDArray
 
 from models.refined import distances
 from models.refined.image_transformer import ImageTransformer
-from refined_functions import HOF, HCARefined
+from models.refined.refined_functions import HOF, HCARefined
 
 
 class Refined(ImageTransformer):
