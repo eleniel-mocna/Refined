@@ -10,7 +10,7 @@ from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
 import pickle
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 
 
 class RFCSurrounding(SurroundingsProteinModel):
@@ -42,13 +42,31 @@ class RFCSurrounding(SurroundingsProteinModel):
         train_data = train_data
         test_data = test_data
         print("Data prepared, training RFC...")
-        random_forest: RandomForestClassifier = RandomForestClassifier(max_depth=5, n_jobs=15, verbose=3,
-                                                                       n_estimators=15)
+        random_forest: RandomForestClassifier = RandomForestClassifier(n_jobs=15, verbose=3,
+                                                                       n_estimators=500,
+                                                                       min_samples_split=5,
+                                                                       max_features='sqrt',
+                                                                       max_depth=10)
+
         random_forest.fit(train_data, train_labels)
         print("RFC trained, finding best cutoff...")
         best_cutoff = get_best_cutoff(test_data, test_labels, random_forest)
         print(best_cutoff)
         return RFCSurrounding(random_forest, best_cutoff)
+
+    @staticmethod
+    def get_best_hyperparameters(data: np.ndarray, labels: np.ndarray):
+        param_grid = {'max_depth': [3, 5, 10, None],
+                      'min_samples_split': [2, 5, 10],
+                      'n_estimators': [100, 200, 300, 500, 1000],
+                      "max_features": ["sqrt", "log2", None]}
+        estimator = RandomForestClassifier(n_jobs=15,
+                                           verbose=0,
+                                           max_features=6)
+        tuner = GridSearchCV(estimator, param_grid, cv=5, n_jobs=-1)
+        tuner.fit(data, labels)
+        return tuner.best_params_
+
 
 def main():
     config = Config.get_instance()

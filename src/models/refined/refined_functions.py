@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numba as nb
 import numpy as np
@@ -120,24 +120,25 @@ def fitness_refined(x: NDArray[int],
     return fitness(x, dists, rows, cols)[0]
 
 
+@nb.jit(nopython=True)
 def HCARefined(individual: NDArray[int],
                rows: int,
                columns: int,
                dists: np.ndarray) -> Tuple[np.ndarray, float]:
-    for i in range(100):
+    for i in range(1000):
         best_fitness = fitness_refined(individual, dists, rows, columns)
         orig_fitness = best_fitness
         if i % 10 == 0:
             print(i, ":", best_fitness, "->", individual)
         for x in range(rows):
             for y in range(columns):
-                best_child: np.ndarray = np.array(())
+                best_child: Optional[np.ndarray] = None
                 for n in neighbours(individual, x, y, rows, columns):
                     this_fitness = fitness_refined(n, dists, rows, columns)
                     if this_fitness < best_fitness:
                         best_fitness = this_fitness
                         best_child = n
-                if best_child.shape == (0,):  # We didn't find a better neighbour
+                if best_child is None:  # We didn't find a better neighbour
                     pass
                 else:
                     individual = best_child

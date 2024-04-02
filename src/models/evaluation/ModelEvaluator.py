@@ -70,24 +70,28 @@ class ModelEvaluator:
         confidence_interval = 1.96 * np.std(accuracies) / np.sqrt(len(accuracies))
 
         self.results["Session Accuracy Median"] = np.median(accuracies)
+        self.results["Session Accuracy Mean"] = np.mean(accuracies)
         self.results["Session Accuracy CI min"] = np.mean(accuracies) - confidence_interval
         self.results["Session Accuracy CI max"] = np.mean(accuracies) + confidence_interval
 
         precisions = [precision_score(label, pred) for label, pred in zip(labels, y_pred) if label.shape[0]]
         confidence_interval = 1.96 * np.std(precisions) / np.sqrt(len(precisions))
         self.results["Session Precision Median"] = np.median(precisions)
+        self.results["Session Precision Mean"] = np.mean(precisions)
         self.results["Session Precision CI min"] = np.mean(precisions) - confidence_interval
         self.results["Session Precision CI max"] = np.mean(precisions) + confidence_interval
 
         recalls = [recall_score(label, pred) for label, pred in zip(labels, y_pred) if label.shape[0]]
         confidence_interval = 1.96 * np.std(recalls) / np.sqrt(len(recalls))
         self.results["Session Recall Median"] = np.median(recalls)
+        self.results["Session Recall Mean"] = np.mean(recalls)
         self.results["Session Recall CI min"] = np.mean(recalls) - confidence_interval
         self.results["Session Recall CI max"] = np.mean(recalls) + confidence_interval
 
         f1_scores = [f1_score(label, pred) for label, pred in zip(labels, y_pred) if label.shape[0]]
         confidence_interval = 1.96 * np.std(f1_scores) / np.sqrt(len(f1_scores))
         self.results["Session F1_score Median"] = np.median(f1_scores)
+        self.results["Session F1_score Mean"] = np.mean(f1_scores)
         self.results["Session F1_score CI min"] = np.mean(f1_scores) - confidence_interval
         self.results["Session F1_score CI max"] = np.mean(f1_scores) + confidence_interval
 
