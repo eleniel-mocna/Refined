@@ -49,7 +49,6 @@ class RefinedModel(SurroundingsProteinModel):
         super().save_model()
         self.model = predictor
 
-
     @staticmethod
     def from_folder(folder: Path):
         refined_model: RefinedModel = pickle.load(open(folder / "model.pkl", "rb"))
@@ -69,19 +68,28 @@ def generate_refined_model(data, labels, image_transformer: ImageTransformer) ->
     model = tuner.get_best_models(1)[0]
     return RefinedModel(model, image_transformer), tuner
 
+
 def cnn_model_builder(hp: HyperParameters):
-    hp_initial_size = hp.Int("initial_size", min_value=4, max_value=128, sampling="log", step=2)
-    hp_growth_factor = hp.Float("growth_factor", min_value=0.5, max_value=2, step=0.1)
-    hp_last_dense = hp.Int("last_dense", min_value=1, max_value=128, sampling="log", step=2)
+    hp_initial_size = hp.Int("initial_size", min_value=16, max_value=4096, sampling="log", step=2)
+    hp_growth_factor = hp.Float("growth_factor", min_value=0.25, max_value=1.5, step=0.05)
+    hp_last_dense = hp.Int("last_dense", min_value=16, max_value=4096, sampling="log", step=2)
     hp_cnn_layers = hp.Int("cnn_layers", min_value=1, max_value=4)
+    hp_cnn_stride = hp.Int("cnn_stride", min_value=1, max_value=3)
+    hp_kernel_size = hp.Int("kernel_size", min_value=3, max_value=7)
+
     hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 5e-3, 1e-3, 5e-4, 1e-4, 5e-5])
 
     model = tf.keras.models.Sequential([])
     model.add(InputLayer(input_shape=(38, 30, 1)))
     for i in range(hp_cnn_layers):
-        model.add(
-            Conv2D(filters=hp_initial_size * (hp_growth_factor ** i), kernel_size=(3, 3), strides=2, activation=relu,
-                   name=f"CNN_{i}"))
+        try:
+            model.add(Conv2D(filters=hp_initial_size * (hp_growth_factor ** i),
+                             kernel_size=(hp_kernel_size, hp_kernel_size),
+                             strides=hp_cnn_stride,
+                             activation=relu,
+                             name=f"CNN_{i}"))
+        except ValueError:
+            pass
     model.add(Flatten(name='Flatten'))
     if hp_last_dense > 1:
         model.add(Dense(units=hp_last_dense, activation=relu, name="Dense"))

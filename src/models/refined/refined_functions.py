@@ -125,7 +125,7 @@ def HCARefined(individual: NDArray[int],
                rows: int,
                columns: int,
                dists: np.ndarray) -> Tuple[np.ndarray, float]:
-    for i in range(1000):
+    for i in range(100000):
         best_fitness = fitness_refined(individual, dists, rows, columns)
         orig_fitness = best_fitness
         if i % 10 == 0:
