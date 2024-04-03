@@ -6,13 +6,11 @@ import keras_tuner as kt
 import numpy as np
 import tensorflow as tf
 from keras.activations import relu
-from keras.engine.input_layer import InputLayer
-from keras.layers import Conv2D, Flatten, Dense
+from keras.layers import Conv2D, Flatten, Dense, InputLayer
 from keras_tuner import HyperParameters
 from keras_tuner.src.backend import keras
 
 from models.common.ProteinModel import SurroundingsProteinModel
-from models.refined.Refined import Refined
 from models.refined.image_transformer import ImageTransformer
 
 
@@ -35,7 +33,6 @@ class RefinedModel(SurroundingsProteinModel):
     def save_predictor(self, path):
         self.model.save_weights(path / "weights.h5")
         self.model.save(path / "model.json")
-        self.model = None
 
     def load_predictor(self, path):
         if self.model is None:
@@ -47,13 +44,18 @@ class RefinedModel(SurroundingsProteinModel):
     def save_model(self):
         folder = self.get_result_folder()
         self.save_predictor(folder)
+        predictor = self.model
+        self.model = None
         super().save_model()
+        self.model = predictor
+
 
     @staticmethod
     def from_folder(folder: Path):
-        refined_model:RefinedModel = pickle.load(open(folder/"model.pkl", "rb"))
+        refined_model: RefinedModel = pickle.load(open(folder / "model.pkl", "rb"))
         refined_model.load_predictor(folder)
         return refined_model
+
 
 def generate_refined_model(data, labels, image_transformer: ImageTransformer) -> tuple[RefinedModel, Any]:
     stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)

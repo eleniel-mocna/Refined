@@ -66,6 +66,9 @@ class Refined(ImageTransformer):
         self._log("REFINED started.")
         self._compute_refined()
 
+    def from_pretrained(self, order: np.ndarray):
+        self.best_individual = order
+
     @staticmethod
     def transform_from_vector(samples: np.ndarray,
                               refined_vector: np.ndarray,
@@ -140,6 +143,7 @@ class Refined(ImageTransformer):
                 best_fitness = hof.best_fitness
                 best_individual = hof.best_individual
         self.best_individual = best_individual
+        self.best_fitness = best_fitness
         np.save(os.path.join(self.path, "best_individual.npy"), self.hof.best_individual)
 
     def _compute_1_refined(self) -> HOF:
