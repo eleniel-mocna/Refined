@@ -101,6 +101,11 @@ class ModelEvaluator:
         tabulated = tabulate(self.results.items(), tablefmt="github", headers=["Metric", "Value"])
         with open(file_name, "w") as file:
             file.write(tabulated)
+        return self
+
+    def print(self):
+        print(tabulate(self.results.items(), tablefmt="github", headers=["Metric", "Value"]))
+        return self
 
     def _get_basic_data(self) -> Tuple[List[pd.DataFrame], List[pd.DataFrame]]:
         # TODO: Implement a data loader

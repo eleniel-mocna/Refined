@@ -25,7 +25,8 @@ def main():
     return (ModelEvaluator(rfc_surrounding_model)
             .calculate_basic_metrics()
             .calculate_session_metrics()
-            .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
+            .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
+            .print())
 
 
 config = Config.get_instance()
