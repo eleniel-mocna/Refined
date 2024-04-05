@@ -53,8 +53,6 @@ class HOF:
         hashed = self.hash(individual)
         if hashed in self.searched and self.searched[hashed] == individual_fitness:
             return False
-        if self.generation > 1000:
-            return False
         self.searched[hashed] = individual_fitness
         if self.best_fitness > individual_fitness:
             self.best_fitness = individual_fitness
@@ -128,8 +126,7 @@ def HCARefined(individual: NDArray[int],
     for i in range(100000):
         best_fitness = fitness_refined(individual, dists, rows, columns)
         orig_fitness = best_fitness
-        if i % 10 == 0:
-            print(i, ":", best_fitness, "->", individual)
+        print(i, ":", best_fitness, "->", individual)
         for x in range(rows):
             for y in range(columns):
                 best_child: Optional[np.ndarray] = None
@@ -145,5 +142,6 @@ def HCARefined(individual: NDArray[int],
         if orig_fitness > best_fitness:
             continue
         else:
+            print(f"REFINED FINISHED IN {i}-th epoch")
             return individual, best_fitness
     return individual, best_fitness

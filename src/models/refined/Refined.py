@@ -22,7 +22,7 @@ class Refined(ImageTransformer):
                  distances_split: float = 1.,
                  distances_logging: int = 10,
                  distances_n_jobs: int = 0,
-                 hca_logging: int = 10,
+                 hca_logging: int = 1,
                  hca_starts: int = 6,
                  ):
         """

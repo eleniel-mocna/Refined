@@ -15,7 +15,7 @@ def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
 
-    refined = Refined(data, 38, 30, "temp", hca_starts=8)
+    refined = Refined(data, 38, 30, "temp", hca_starts=1)
     refined.run()
     print(f"Refined order: \n{refined.best_individual}")
     print(f"Refined score: \n{refined.hof.best_fitness}")
