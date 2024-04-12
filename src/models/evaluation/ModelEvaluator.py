@@ -139,10 +139,11 @@ class ModelEvaluator:
         with open(file_name, "w") as file:
             file.write(tabulated)
         json_file = file_name.with_suffix(".json")
-        with open(json_file, "w") as file:
-            try:
+        try:
+            with open(json_file, "w") as file:
                 json.dump(self.results, file, indent=4)
-            except TypeError:
+        except TypeError:
+            with open(json_file, "w") as file:
                 self.results = {str(k): str(v) for k, v in self.results.items()}
                 json.dump(self.results, file, indent=4)
         return self
