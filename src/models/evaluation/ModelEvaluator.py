@@ -5,7 +5,6 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-from numpy.core._exceptions import _ArrayMemoryError
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from tabulate import tabulate
 
@@ -32,8 +31,8 @@ class ModelEvaluator:
                 n = 10000
                 self.y_pred = np.array([])
                 for i in range(0, len(self.data), n):
-                    print(f"Predicting batch {i//n}/{len(self.data)//n}")
-                    self.y_pred = np.concatenate((self.y_pred, model.predict_surroundings(self.data[i:i+n])))
+                    print(f"Predicting batch {i // n}/{len(self.data) // n}")
+                    self.y_pred = np.concatenate((self.y_pred, model.predict_surroundings(self.data[i:i + n])))
 
         else:
             print("Using basic data")
@@ -48,25 +47,59 @@ class ModelEvaluator:
     def flat_labels(self):
         return self.labels if self.is_surroundings_model else np.concatenate(self.labels)
 
-    def split_by_protein(self, labels:np.array):
+    def split_by_protein(self, labels: np.array):
         proteins = [labels[i:j] for i, j in zip([0] + list(np.cumsum(self.get_proteins_lengths())[:-1]),
                                                 np.cumsum(self.get_proteins_lengths()))]
         return proteins
 
     def get_proteins_lengths(self) -> List[int]:
         return self.config.test_lengths
+
     def calculate_basic_metrics(self) -> 'ModelEvaluator':
         self.results["N predictions"] = len(self.y_pred)
         self.results["Accuracy"] = accuracy_score(self.flat_labels, self.y_pred)
+        self.results["Accuracy CI max"] = accuracy_score(self.flat_labels, self.y_pred) + 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
+        self.results["Accuracy CI min"] = accuracy_score(self.flat_labels, self.y_pred) - 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
         self.results["Precision"] = precision_score(self.flat_labels, self.y_pred, average='macro')
+        self.results["Precision CI max"] = precision_score(self.flat_labels, self.y_pred,
+                                                           average='macro') + 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
+        self.results["Precision CI min"] = precision_score(self.flat_labels, self.y_pred,
+                                                           average='macro') - 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
         self.results["Recall"] = recall_score(self.flat_labels, self.y_pred, average='macro')
+        self.results["Recall CI max"] = recall_score(self.flat_labels, self.y_pred, average='macro') + 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
+        self.results["Recall CI min"] = recall_score(self.flat_labels, self.y_pred, average='macro') - 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
         self.results["F1_score"] = f1_score(self.flat_labels, self.y_pred, average='macro')
+        self.results["F1_score CI max"] = f1_score(self.flat_labels, self.y_pred, average='macro') + 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
+        self.results["F1_score CI min"] = f1_score(self.flat_labels, self.y_pred, average='macro') - 1.96 * np.std(
+            self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
+
+        self.results["TP"] = np.sum(np.logical_and(self.flat_labels, self.y_pred))
+        self.results["FP"] = np.sum(np.logical_and(np.logical_not(self.flat_labels), self.y_pred))
+        self.results["TN"] = np.sum(np.logical_and(np.logical_not(self.flat_labels), np.logical_not(self.y_pred)))
+        self.results["FN"] = np.sum(np.logical_and(self.flat_labels, np.logical_not(self.y_pred)))
         return self
 
     def calculate_session_metrics(self) -> 'ModelEvaluator':
         labels = self.split_by_protein(self.flat_labels)
         y_pred = self.split_by_protein(self.y_pred)
         self.results["N Proteins"] = len(labels)
+
+        # Filter proteins with no predicted LBS
+        true_proteins_without_lbs = np.array([max(label) == 0 for label in labels])
+        pred_proteins_without_lbs = np.array([max(label) == 0 for label in y_pred])
+        both_without_lbs = true_proteins_without_lbs & pred_proteins_without_lbs
+
+        self.results["True proteins without LBS"] = true_proteins_without_lbs.sum()
+        self.results["Pred proteins without LBS"] = pred_proteins_without_lbs.sum()
+        self.results["Pred&True proteins without LBS"] = (true_proteins_without_lbs & pred_proteins_without_lbs).sum()
+
         accuracies = [accuracy_score(label, pred) for label, pred in zip(labels, y_pred) if label.shape[0]]
         confidence_interval = 1.96 * np.std(accuracies) / np.sqrt(len(accuracies))
 
@@ -75,21 +108,24 @@ class ModelEvaluator:
         self.results["Session Accuracy CI min"] = np.mean(accuracies) - confidence_interval
         self.results["Session Accuracy CI max"] = np.mean(accuracies) + confidence_interval
 
-        precisions = [precision_score(label, pred) for label, pred in zip(labels, y_pred) if label.shape[0]]
+        precisions = [precision_score(label, pred, zero_division=int(both_without_lbs[i]))
+                      for label, pred, i in zip(labels, y_pred, range(len(labels))) if label.shape[0]]
         confidence_interval = 1.96 * np.std(precisions) / np.sqrt(len(precisions))
         self.results["Session Precision Median"] = np.median(precisions)
         self.results["Session Precision Mean"] = np.mean(precisions)
         self.results["Session Precision CI min"] = np.mean(precisions) - confidence_interval
         self.results["Session Precision CI max"] = np.mean(precisions) + confidence_interval
 
-        recalls = [recall_score(label, pred) for label, pred in zip(labels, y_pred) if label.shape[0]]
+        recalls = [recall_score(label, pred, zero_division=int(both_without_lbs[i]))
+                   for label, pred, i in zip(labels, y_pred, range(len(labels))) if label.shape[0]]
         confidence_interval = 1.96 * np.std(recalls) / np.sqrt(len(recalls))
         self.results["Session Recall Median"] = np.median(recalls)
         self.results["Session Recall Mean"] = np.mean(recalls)
         self.results["Session Recall CI min"] = np.mean(recalls) - confidence_interval
         self.results["Session Recall CI max"] = np.mean(recalls) + confidence_interval
 
-        f1_scores = [f1_score(label, pred) for label, pred in zip(labels, y_pred) if label.shape[0]]
+        f1_scores = [f1_score(label, pred, zero_division=int(both_without_lbs[i]))
+                     for label, pred, i in zip(labels, y_pred, range(len(labels))) if label.shape[0]]
         confidence_interval = 1.96 * np.std(f1_scores) / np.sqrt(len(f1_scores))
         self.results["Session F1_score Median"] = np.median(f1_scores)
         self.results["Session F1_score Mean"] = np.mean(f1_scores)
