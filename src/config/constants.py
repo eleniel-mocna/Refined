@@ -11,6 +11,8 @@ IMAGES_FOLDER = DATA_FOLDER / "images"
 
 MODELS_FOLDER = DATA_FOLDER / "models"
 
+REFINED_ORDERS = DATA_FOLDER / "REFINED_values.json"
+
 
 X_POSITION = "xyz.x"
 Y_POSITION = "xyz.y"
