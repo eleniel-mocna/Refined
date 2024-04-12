@@ -1,8 +1,10 @@
+import json
 import sys
 
 import numpy as np
 
 from config.config import Config
+from config.constants import REFINED_ORDERS
 from models.evaluation.ModelEvaluator import ModelEvaluator
 from models.refined.Refined import Refined
 from models.refined.RefinedModel import generate_refined_model
@@ -16,9 +18,8 @@ def main():
         data, labels = pickle.load(file)
 
     refined = Refined(data, 38, 30, "temp", hca_starts=1)
+    refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
     refined.run()
-    print(f"Refined order: \n{refined.best_individual}")
-    print(f"Refined score: \n{refined.hof.best_fitness}")
 
     rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined)
     rfc_surrounding_model.save_model()
