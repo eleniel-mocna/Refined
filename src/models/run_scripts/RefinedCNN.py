@@ -17,7 +17,7 @@ def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
 
-    refined = Refined(data, 38, 30, "temp", hca_starts=1)
+    refined = Refined(data, 38, 30, "../refined/temp", hca_starts=1)
     refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
 
     rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined)
