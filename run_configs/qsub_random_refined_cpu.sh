@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -N REFINED_CNN_CPU
+#PBS -N Rand_CNN_norm_CPU
 #PBS -l select=1:ncpus=32:mem=64gb:scratch_local=256gb
 #PBS -l walltime=96:00:00
 #PBS -j oe
@@ -18,5 +18,5 @@ pip3 install --no-cache-dir -r requirements.txt
 cp -r /storage/brno12-cerit/home/eleniel/refined/data/surroundings/ data
 
 export PYTHONPATH=$PYTHONPATH:src
-python3 src/models/run_scripts/RefinedCNN.py
+python3 src/models/run_scripts/RandomCNN_Normalized.py
 cp -r /data/models /storage/brno12-cerit/home/eleniel/refined/data
