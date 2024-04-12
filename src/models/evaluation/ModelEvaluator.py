@@ -80,10 +80,10 @@ class ModelEvaluator:
         self.results["F1_score CI min"] = f1_score(self.flat_labels, self.y_pred, average='macro') - 1.96 * np.std(
             self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
 
-        self.results["TP"] = np.sum(np.logical_and(self.flat_labels, self.y_pred))
-        self.results["FP"] = np.sum(np.logical_and(np.logical_not(self.flat_labels), self.y_pred))
-        self.results["TN"] = np.sum(np.logical_and(np.logical_not(self.flat_labels), np.logical_not(self.y_pred)))
-        self.results["FN"] = np.sum(np.logical_and(self.flat_labels, np.logical_not(self.y_pred)))
+        self.results["TP"] = int(np.sum(np.logical_and(self.flat_labels, self.y_pred)))
+        self.results["FP"] = int(np.sum(np.logical_and(np.logical_not(self.flat_labels), self.y_pred)))
+        self.results["TN"] = int(np.sum(np.logical_and(np.logical_not(self.flat_labels), np.logical_not(self.y_pred))))
+        self.results["FN"] = int(np.sum(np.logical_and(self.flat_labels, np.logical_not(self.y_pred))))
         return self
 
     def calculate_session_metrics(self) -> 'ModelEvaluator':
@@ -140,7 +140,11 @@ class ModelEvaluator:
             file.write(tabulated)
         json_file = file_name.with_suffix(".json")
         with open(json_file, "w") as file:
-            json.dump(self.results, file, indent=4)
+            try:
+                json.dump(self.results, file, indent=4)
+            except TypeError:
+                self.results = {str(k): str(v) for k, v in self.results.items()}
+                json.dump(self.results, file, indent=4)
         return self
 
     def print(self):
