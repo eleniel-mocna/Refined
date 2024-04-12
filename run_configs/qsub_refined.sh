@@ -1,9 +1,9 @@
 #!/bin/bash
 #PBS -N REFINED_CNN_GPU
-#PBS -l select=1:ncpus=32:ngpus=1:mem=64gb:scratch_local=256gb
+#PBS -q gpu -l select=1:ncpus=32:ngpus=1:mem=64gb:scratch_local=256gb
 #PBS -l walltime=96:00:00
 #PBS -j oe
-#PBS -q gpu
+#PBS
 
 # shellcheck disable=SC2164
 cd "$SCRATCH"
