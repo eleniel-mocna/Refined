@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -N REFINED_CNN
-#PBS -l select=1:ncpus=16:mem=64gb:scratch_local=256gb
-#PBS -l walltime=24:00:00
+#PBS -l select=1:ncpus=32:mem=64gb:scratch_local=256gb
+#PBS -l walltime=96:00:00
 #PBS -j oe
 
 # shellcheck disable=SC2164
