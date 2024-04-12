@@ -19,7 +19,6 @@ def main():
 
     refined = Refined(data, 38, 30, "temp", hca_starts=1)
     refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
-    refined.run()
 
     rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined)
     rfc_surrounding_model.save_model()
