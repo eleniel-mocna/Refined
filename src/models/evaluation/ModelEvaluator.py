@@ -1,3 +1,4 @@
+import json
 import pickle
 from pathlib import Path
 from typing import List, Tuple
@@ -101,6 +102,9 @@ class ModelEvaluator:
         tabulated = tabulate(self.results.items(), tablefmt="github", headers=["Metric", "Value"])
         with open(file_name, "w") as file:
             file.write(tabulated)
+        json_file = file_name.with_suffix(".json")
+        with open(json_file, "w") as file:
+            json.dump(self.results, file, indent=4)
         return self
 
     def print(self):
