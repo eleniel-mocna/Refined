@@ -83,7 +83,7 @@ def cnn_model_builder(hp: HyperParameters):
     model.add(InputLayer(input_shape=(38, 30, 1)))
     for i in range(hp_cnn_layers):
         try:
-            model.add(Conv2D(filters=hp_initial_size * (hp_growth_factor ** i),
+            model.add(Conv2D(filters=int(hp_initial_size * (hp_growth_factor ** i)),
                              kernel_size=(hp_kernel_size, hp_kernel_size),
                              strides=hp_cnn_stride,
                              activation=relu,
