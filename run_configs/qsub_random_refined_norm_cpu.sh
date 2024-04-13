@@ -19,4 +19,4 @@ cp -r /storage/brno12-cerit/home/eleniel/refined/data/surroundings/ data
 
 export PYTHONPATH=$PYTHONPATH:src
 python3 src/models/run_scripts/RandomCNN.py
-cp -r /data/models /storage/brno12-cerit/home/eleniel/refined/data
+cp -r data/models /storage/brno12-cerit/home/eleniel/refined/data

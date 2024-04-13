@@ -19,4 +19,4 @@ cp -r /storage/brno12-cerit/home/eleniel/refined/data/surroundings/ data
 
 export PYTHONPATH=$PYTHONPATH:src
 python3 src/models/run_scripts/pca_rfc.py
-cp -r /data/models /storage/brno12-cerit/home/eleniel/refined/data
+cp -r data/models /storage/brno12-cerit/home/eleniel/refined/data

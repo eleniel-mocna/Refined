@@ -135,9 +135,11 @@ class ModelEvaluator:
         return self
 
     def save_to_file(self, file_name: Path):
+        print(self.results)
         tabulated = tabulate(self.results.items(), tablefmt="github", headers=["Metric", "Value"])
         with open(file_name, "w") as file:
             file.write(tabulated)
+        print(tabulated)
         json_file = file_name.with_suffix(".json")
         try:
             with open(json_file, "w") as file:
