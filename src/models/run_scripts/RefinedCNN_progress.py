@@ -26,16 +26,24 @@ def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
 
-    refined = Refined(data, 38, 30, "temp", hca_starts=1)
-    refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
+    refined_orders = json.load(open(REFINED_ORDERS))
+    for i in range(len(refined_orders)):
+        print(f"Running REFINED on evolution {i}")
+        refined = Refined(data, 38, 30, "temp", hca_starts=1)
+        refined.from_pretrained(np.array(refined_orders[-1]["order"]))
 
-    rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined, best_params)
-    rfc_surrounding_model.save_model()
-    return (ModelEvaluator(rfc_surrounding_model)
-            .calculate_basic_metrics()
-            .calculate_session_metrics()
-            .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
-            .print())
+        rfc_surrounding_model, _ = generate_refined_model(
+            np.array(data),
+            np.array(labels),
+            refined,
+            best_params,
+            f"_{i}")
+        rfc_surrounding_model.save_model()
+        (ModelEvaluator(rfc_surrounding_model)
+         .calculate_basic_metrics()
+         .calculate_session_metrics()
+         .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
+         .print())
 
 
 config = Config.get_instance()

@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple, Dict, Optional
 
 import keras_tuner as kt
 import numpy as np
@@ -56,8 +56,20 @@ class RefinedModel(SurroundingsProteinModel):
         return refined_model
 
 
-def generate_refined_model(data, labels, image_transformer: ImageTransformer) -> tuple[RefinedModel, Any]:
+def generate_refined_model(data,
+                           labels,
+                           image_transformer: ImageTransformer,
+                           hyperparams: Optional[Dict[str, Any]] = None,
+                           name_suffix: str = "") -> Tuple[RefinedModel, Any]:
     stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+    if hyperparams is not None:
+        hyper_parameters = kt.HyperParameters()
+        for key, value in hyperparams.items():
+            hyper_parameters.Fixed(key, value)
+        model = cnn_model_builder(hyper_parameters)
+        model.fit(image_transformer.transform(data), labels, epochs=50, validation_split=0.2, callbacks=[stop_early])
+        return RefinedModel(model, image_transformer, name_suffix), None
+
     tuner = kt.Hyperband(cnn_model_builder,
                          objective='val_accuracy',
                          max_epochs=10,
