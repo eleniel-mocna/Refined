@@ -84,7 +84,7 @@ def main():
         data, labels = pickle.load(file)
     labels = np.vectorize(booleanize)(labels)
 
-    pca_sizes = [2, 8, 32, 128, 512]
+    pca_sizes = [4, 16, 64, 256, 1024]
     pca_sizes.reverse()
     for pca_size in pca_sizes:
         print(f"Training PCA with size {pca_size}")
