@@ -47,7 +47,9 @@ class PcaRfc(SurroundingsProteinModel):
         positive_data = train_data[train_labels == 1]
         negative_data = train_data[train_labels == 0]
         negative_data = negative_data[np.random.choice(negative_data.shape[0], positive_data.shape[0], replace=False)]
-        reduced_train_data = pca.fit_transform(np.concatenate([positive_data, negative_data]))
+
+        pca.fit(np.concatenate([positive_data, negative_data]))
+        reduced_train_data = pca.transform(train_data)
         reduced_test_data = pca.transform(test_data)
 
         print("Data prepared, training RFC...")
