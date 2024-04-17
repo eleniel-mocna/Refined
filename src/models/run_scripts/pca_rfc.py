@@ -43,7 +43,11 @@ class PcaRfc(SurroundingsProteinModel):
         train_data, test_data, train_labels, test_labels = \
             train_test_split(data, labels, test_size=0.20, random_state=42)
         pca = PCA(pca_dimension)
-        reduced_train_data = pca.fit_transform(train_data)
+        # Use just data with positive label and the same amount of randomly chosen negative points
+        positive_data = train_data[train_labels == 1]
+        negative_data = train_data[train_labels == 0]
+        negative_data = negative_data[np.random.choice(negative_data.shape[0], positive_data.shape[0], replace=False)]
+        reduced_train_data = pca.fit_transform(np.concatenate([positive_data, negative_data]))
         reduced_test_data = pca.transform(test_data)
 
         print("Data prepared, training RFC...")
@@ -78,7 +82,9 @@ def main():
         data, labels = pickle.load(file)
     labels = np.vectorize(booleanize)(labels)
 
-    for pca_size in (2, 4, 8, 16, 32, 64, 128, 256, 512, 1024):
+    pca_sizes = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    pca_sizes.reverse()
+    for pca_size in pca_sizes:
         print(f"Training PCA with size {pca_size}")
         rfc_surrounding_model = PcaRfc.from_data(np.array(data), np.array(labels), pca_size)
         rfc_surrounding_model.save_model()
