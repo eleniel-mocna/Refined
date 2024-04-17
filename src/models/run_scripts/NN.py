@@ -1,20 +1,22 @@
 import sys
-from typing import Any
+from typing import Any, Tuple, Optional, Dict
 
+import keras
+import keras_tuner as kt
 import numpy as np
+from keras_tuner import HyperParameters
 
 from config.config import Config
-from models.common.ProteinModel import SurroundingsProteinModel, ProteinModel
+from models.common.ProteinModel import SurroundingsProteinModel
 from models.evaluation.ModelEvaluator import ModelEvaluator
-from models.refined.RefinedModel import RefinedModel
 
 np.set_printoptions(threshold=sys.maxsize)
 import pickle
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
 from tensorflow.keras.activations import relu
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import InputLayer
+
 
 class BigNN(SurroundingsProteinModel):
     def __init__(self, model: tf.keras.Model):
@@ -30,39 +32,52 @@ class BigNN(SurroundingsProteinModel):
     def name(self) -> str:
         return "surroundings_NN"
 
+def nn_model_builder(hp: HyperParameters):
+    hp_initial_size = hp.Int("initial_size", min_value=16, max_value=4096, sampling="log", step=2)
+    hp_growth_factor = hp.Float("growth_factor", min_value=0.25, max_value=1.5, step=0.05)
+    hp_layers = hp.Int("layers", min_value=1, max_value=4)
+    hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 5e-3, 1e-3, 5e-4, 1e-4, 5e-5])
 
-def create_model():
     model = tf.keras.models.Sequential([])
     model.add(InputLayer(input_shape=(38 * 30)))
-    model.add(Dense(units=30, activation=relu))
+    for i in range(hp_layers):
+        try:
+            model.add(Dense(units=int(hp_initial_size * (hp_growth_factor ** i)), activation=relu, name=f"Dense_{i}"))
+        except ValueError:
+            pass
     model.add(Dense(units=1, name='logits', activation="sigmoid"))
-    model.compile(loss=tf.keras.losses.BinaryCrossentropy(), optimizer='adam', metrics=['accuracy'])
-    print(model.summary())
+    model.compile(loss=tf.keras.losses.BinaryCrossentropy(),
+                  optimizer=keras.optimizers.Adam(learning_rate=hp_learning_rate), metrics=['accuracy'])
     return model
 
 
-def generate_refined_model_from_dataset():
-    with open("refined/data.pckl", "rb") as file:
-        data = pickle.load(file)
+def generate_nn_model(data,
+                      labels,
+                      hyperparams: Optional[Dict[str, Any]] = None) -> Tuple[BigNN, Any]:
+    stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+    if hyperparams is not None:
+        hyper_parameters = kt.HyperParameters()
+        for key, value in hyperparams.items():
+            hyper_parameters.Fixed(key, value)
+        model = nn_model_builder(hyper_parameters)
+        return BigNN(model), hyperparams
 
-    with open("refined/labels.pckl", "rb") as file:
-        labels = pickle.load(file)
-    return train_model(data, labels)
-
-
-def train_model(data, labels) -> tuple[ProteinModel, Any]:
-    train_data, test_data, train_labels, test_labels = \
-        train_test_split(data, labels, test_size=0.20, random_state=42)
-    model = create_model()
-    history = model.fit(train_data, train_labels, validation_data=(test_data, test_labels), epochs=1)
-    return BigNN(model), history
+    tuner = kt.Hyperband(nn_model_builder,
+                         objective='val_accuracy',
+                         max_epochs=10,
+                         factor=3,
+                         )
+    tuner.search(data, labels, epochs=50, validation_split=0.2, callbacks=[stop_early])
+    print(f"Best hyperparams: \n{tuner.get_best_hyperparameters()[0].values}")
+    model = tuner.get_best_models(1)[0]
+    return BigNN(model), tuner
 
 
 def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
 
-    rfc_surrounding_model, _ = train_model(np.array(data), np.array(labels))
+    rfc_surrounding_model, _ = generate_nn_model(np.array(data), np.array(labels))
     rfc_surrounding_model.save_model()
     (ModelEvaluator(rfc_surrounding_model)
      .calculate_basic_metrics()

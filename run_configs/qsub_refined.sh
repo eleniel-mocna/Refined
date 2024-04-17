@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N REFINED_CNN_GPU
-#PBS -q gpu -l select=1:ncpus=32:ngpus=1:mem=64gb:scratch_local=256gb
+#PBS -q gpu -l select=1:ncpus=2:ngpus=1:mem=64gb:scratch_local=256gb
 #PBS -l walltime=24:00:00
 #PBS -j oe
 #PBS
