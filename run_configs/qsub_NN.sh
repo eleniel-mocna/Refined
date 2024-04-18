@@ -19,5 +19,5 @@ pip3 install --no-cache-dir -r requirements.txt
 cp -r /storage/brno12-cerit/home/eleniel/refined/data/surroundings/ data
 
 export PYTHONPATH=$PYTHONPATH:src
-python3 src/models/run_scripts/RefinedCNN.py
+python3 src/models/run_scripts/NN.py
 cp -r data/models /storage/brno12-cerit/home/eleniel/refined/data
