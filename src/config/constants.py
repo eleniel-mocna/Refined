@@ -12,6 +12,9 @@ IMAGES_FOLDER = DATA_FOLDER / "images"
 MODELS_FOLDER = DATA_FOLDER / "models"
 
 REFINED_ORDERS = DATA_FOLDER / "REFINED_values.json"
+PROGRESSION_EVAL_RESULTS = DATA_FOLDER / "progression_results.json"
+PROGRESSION_MODEL_STATS = DATA_FOLDER / "progression_model_stats.json"
+EXPERIMENT1_STATS = DATA_FOLDER / "experiment_1.json"
 
 
 X_POSITION = "xyz.x"
