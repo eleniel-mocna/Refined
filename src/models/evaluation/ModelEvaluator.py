@@ -17,7 +17,7 @@ from models.common.ProteinModel import ProteinModel, SurroundingsProteinModel
 class ModelEvaluator:
     def __init__(self, model: ProteinModel):
         self.model = model
-        self.results = dict()
+        self.results = {"model_name":model.name}
         self.config = Config.get_instance()
 
         self.is_surroundings_model = isinstance(model, SurroundingsProteinModel)
@@ -173,8 +173,8 @@ class ModelEvaluator:
                 json.dump(roc_curve_results, file, indent=4)
         plt.plot(self.fpr, self.tpr)
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        plt.text(0.5, 0.2, f"AUC: {self.results['AUC']}", fontsize=14,
-                verticalalignment='top', bbox=props)
+        plt.text(0.5, 0.2, f"AUC: {self.results['AUC']:.4f}", fontsize=14,
+                 verticalalignment='top', bbox=props)
         plt.xlabel("FPR")
         plt.ylabel("TPR")
         plt.title(f"ROC curve - {self.model.name}")
