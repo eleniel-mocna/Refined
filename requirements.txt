@@ -12,5 +12,4 @@ scipy
 numba
 tabulate
 matplotlib
-tensorflow
-keras-tuner
+jupyter
