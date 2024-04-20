@@ -179,6 +179,7 @@ class ModelEvaluator:
         plt.ylabel("TPR")
         plt.title(f"ROC curve - {self.model.name}")
         plt.savefig(file_name.with_suffix(".png"))
+        plt.clf()
         return self
 
     def print(self):
