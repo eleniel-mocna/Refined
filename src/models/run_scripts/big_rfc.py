@@ -73,14 +73,24 @@ def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
     labels = np.vectorize(booleanize)(labels)
+    indices = np.arange(data.shape[0])
+    np.random.shuffle(indices)
 
-    rfc_surrounding_model = RFCSurrounding.from_data(np.array(data), np.array(labels))
-    rfc_surrounding_model.save_model()
-    (ModelEvaluator(rfc_surrounding_model)
-     .calculate_basic_metrics()
-     .calculate_session_metrics()
-     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
-     .print())
+    data = data[indices]
+    labels = labels[indices]
+    split_data, split_labels = np.array_split(data, 5), np.array_split(labels, 5)
+    for i in range(5):
+        print(f"Training BigRFC number {i}.")
+        train_data = np.concatenate([split_data[j] for j in range(5) if j != i])
+        train_labels = np.concatenate([split_labels[j] for j in range(5) if j != i])
+
+        rfc_surrounding_model = RFCSurrounding.from_data(np.array(train_data), np.array(train_labels))
+        rfc_surrounding_model.save_model()
+        (ModelEvaluator(rfc_surrounding_model)
+         .calculate_basic_metrics()
+         .calculate_session_metrics()
+         .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
+         .print())
 
 
 if __name__ == '__main__':

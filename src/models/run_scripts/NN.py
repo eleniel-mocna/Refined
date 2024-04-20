@@ -32,6 +32,7 @@ class BigNN(SurroundingsProteinModel):
     def name(self) -> str:
         return "surroundings_NN"
 
+
 def nn_model_builder(hp: HyperParameters):
     hp_initial_size = hp.Int("initial_size", min_value=16, max_value=4096, sampling="log", step=2)
     hp_growth_factor = hp.Float("growth_factor", min_value=0.25, max_value=1.5, step=0.05)
@@ -73,17 +74,30 @@ def generate_nn_model(data,
     model = tuner.get_best_models(1)[0]
     return BigNN(model), tuner
 
+
 best_hyperparams = {'initial_size': 32, 'growth_factor': 0.3, 'layers': 1, 'learning_rate': 0.0005}
+
+
 def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
 
-    rfc_surrounding_model, _ = generate_nn_model(np.array(data), np.array(labels), best_hyperparams)
-    rfc_surrounding_model.save_model()
-    (ModelEvaluator(rfc_surrounding_model)
-     .calculate_basic_metrics()
-     .calculate_session_metrics()
-     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
+    indices = np.arange(data.shape[0])
+    np.random.shuffle(indices)
+
+    data = data[indices]
+    labels = labels[indices]
+    split_data, split_labels = np.array_split(data, 5), np.array_split(labels, 5)
+    for i in range(5):
+        print(f"Training RefinedCNN number {i}.")
+        train_data = np.concatenate([split_data[j] for j in range(5) if j != i])
+        train_labels = np.concatenate([split_labels[j] for j in range(5) if j != i])
+        rfc_surrounding_model, _ = generate_nn_model(np.array(train_data), np.array(train_labels), best_hyperparams)
+        rfc_surrounding_model.save_model()
+        (ModelEvaluator(rfc_surrounding_model)
+         .calculate_basic_metrics()
+         .calculate_session_metrics()
+         .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
 
 
 config = Config.get_instance()
