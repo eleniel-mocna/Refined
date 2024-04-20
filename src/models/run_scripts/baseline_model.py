@@ -4,8 +4,8 @@ from typing import List
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 from config.config import Config
 from models.common.ProteinModel import ProteinModel
@@ -20,14 +20,28 @@ def main():
     print("Data loaded.")
 
     print("Preparing data...")
-    labels = list(map(lambda x: x["@@class@@"] == b'1', arffs))
-    data = list(map(lambda x: x.drop("@@class@@", axis=1), arffs))
-    random_forest = RandomForestModel.from_data(data, labels)
-    random_forest.save_model()
-    (ModelEvaluator(random_forest)
-     .calculate_basic_metrics()
-     .calculate_session_metrics()
-     .save_to_file(random_forest.get_result_folder() / "metrics.txt"))
+    labels: List[pd.Series] = list(map(lambda x: x["@@class@@"] == b'1', arffs))
+    data: List[pd.DataFrame] = list(map(lambda x: x.drop("@@class@@", axis=1), arffs))
+    data, labels = shuffle(data, labels, random_state=42)
+    split_data = [[data[j] for j in range(len(data)) if j % 5 == i] for i in range(5)]
+    split_labels = [[labels[j] for j in range(len(labels)) if j % 5 == i] for i in range(5)]
+
+    for i in range(5):
+        print(f"Training model number {i}")
+        # use all data except for i-th split
+        train_data = [split_data[j] for j in range(5) if j != i]
+        train_labels = [split_labels[j] for j in range(5) if j != i]
+
+        # flatten the list of lists
+        train_data = [item for sublist in train_data for item in sublist]
+        train_labels = [item for sublist in train_labels for item in sublist]
+
+        random_forest = RandomForestModel.from_data(train_data, train_labels)
+        random_forest.save_model()
+        (ModelEvaluator(random_forest)
+         .calculate_basic_metrics()
+         .calculate_session_metrics()
+         .save_to_file(random_forest.get_result_folder() / "metrics.txt"))
 
 
 class RandomForestModel(ProteinModel):
@@ -46,7 +60,7 @@ class RandomForestModel(ProteinModel):
         return self.random_forest.predict_proba(protein)[:, 1] > self.cutoff
 
     @staticmethod
-    def from_data(data: List[np.ndarray], labels: List[np.ndarray]) -> 'RandomForestModel':
+    def from_data(data: List[pd.DataFrame], labels: List[pd.Series]) -> 'RandomForestModel':
         """
         Create a model from REFINED original paper. From raw protein data.
 
@@ -72,6 +86,7 @@ class RandomForestModel(ProteinModel):
         best_cutoff = get_best_cutoff(test_data_combined, test_labels_combined, random_forest)
         print(best_cutoff)
         return RandomForestModel(random_forest, best_cutoff)
+
 
 if __name__ == '__main__':
     main()
