@@ -37,7 +37,7 @@ def main():
         train_data = np.concatenate([split_data[j] for j in range(5) if j != i])
         train_labels = np.concatenate([split_labels[j] for j in range(5) if j != i])
 
-        rfc_surrounding_model, _ = generate_refined_model(np.array(train_data), np.array(train_labels), refined, best_params)
+        rfc_surrounding_model, _ = generate_refined_model(np.array(train_data), np.array(train_labels), refined, best_hyperparams)
         rfc_surrounding_model.save_model()
         return (ModelEvaluator(rfc_surrounding_model)
                 .calculate_basic_metrics()
