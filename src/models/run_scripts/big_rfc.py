@@ -18,7 +18,7 @@ class RFCSurrounding(SurroundingsProteinModel):
         return self.rfc.predict_proba(protein)[:, 1] > self.cutoff
 
     def predict_surroundings_proba(self, protein: np.ndarray) -> np.ndarray:
-        return self.rfc.predict_proba(protein)
+        return self.rfc.predict_proba(protein)[:, 1]
 
     @property
     def name(self) -> str:
@@ -79,7 +79,8 @@ def main():
     (ModelEvaluator(rfc_surrounding_model)
      .calculate_basic_metrics()
      .calculate_session_metrics()
-     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
+     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
+     .print())
 
 
 if __name__ == '__main__':
