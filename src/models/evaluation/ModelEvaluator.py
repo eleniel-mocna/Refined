@@ -1,3 +1,4 @@
+import copy
 import json
 import pickle
 from pathlib import Path
@@ -5,7 +6,8 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from matplotlib import pyplot as plt
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_curve
 from tabulate import tabulate
 
 from config.config import Config
@@ -24,7 +26,7 @@ class ModelEvaluator:
             print("IS SMART!")
             self.data, self.labels = self._get_surroundings_data()
             try:
-                self.y_pred = model.predict_surroundings(self.data)
+                self.y_pred_prob = model.predict_surroundings_proba(self.data)
             except MemoryError:
                 # predict by batches
                 print("MemoryError, predicting by batches")
@@ -32,12 +34,28 @@ class ModelEvaluator:
                 self.y_pred = np.array([])
                 for i in range(0, len(self.data), n):
                     print(f"Predicting batch {i // n}/{len(self.data) // n}")
-                    self.y_pred = np.concatenate((self.y_pred, model.predict_surroundings(self.data[i:i + n])))
+                    self.y_pred = np.concatenate((self.y_pred, model.predict_surroundings_proba(self.data[i:i + n])))
 
         else:
             print("Using basic data")
             self.data, self.labels = self._get_basic_data()
-            self.y_pred = self.model.predict(self.flat_data)
+            self.y_pred_prob = self.model.predict_proba(self.flat_data)
+            # calculate the best threshold
+            # Calculate the ROC
+        self.fpr: np.ndarray
+        self.tpr: np.ndarray
+        self.thresholds: np.ndarray
+        self.fpr, self.tpr, self.thresholds = roc_curve(self.flat_labels, self.y_pred_prob)
+
+        # Get the best threshold for f1
+        best_f1 = 0
+        best_threshold = 0
+        for i in range(len(self.fpr)):
+            f1 = 2 * self.tpr[i] * (1 - self.fpr[i]) / (self.tpr[i] + 1 - self.fpr[i])
+            if f1 > best_f1:
+                best_f1 = f1
+                best_threshold = self.thresholds[i]
+        self.y_pred = self.y_pred_prob > best_threshold
 
     @property
     def flat_data(self):
@@ -79,6 +97,9 @@ class ModelEvaluator:
             self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
         self.results["F1_score CI min"] = f1_score(self.flat_labels, self.y_pred, average='macro') - 1.96 * np.std(
             self.flat_labels == self.y_pred) / np.sqrt(len(self.y_pred))
+
+        # AUC
+        self.results["AUC"] = np.trapz(self.tpr, self.fpr)
 
         self.results["TP"] = int(np.sum(np.logical_and(self.flat_labels, self.y_pred)))
         self.results["FP"] = int(np.sum(np.logical_and(np.logical_not(self.flat_labels), self.y_pred)))
@@ -141,17 +162,30 @@ class ModelEvaluator:
             file.write(tabulated)
         print(tabulated)
         json_file = file_name.with_suffix(".json")
+        roc_curve_results = copy.deepcopy(self.results)
+        roc_curve_results.update({"fpr": self.fpr.tolist(), "tpr": self.tpr.tolist(), "thresholds": self.thresholds.tolist()})
         try:
             with open(json_file, "w") as file:
-                json.dump(self.results, file, indent=4)
+                json.dump(roc_curve_results, file, indent=4)
         except TypeError:
             with open(json_file, "w") as file:
-                self.results = {str(k): str(v) for k, v in self.results.items()}
-                json.dump(self.results, file, indent=4)
+                roc_curve_results = {str(k): str(v) for k, v in roc_curve_results.items()}
+                json.dump(roc_curve_results, file, indent=4)
+        plt.plot(self.fpr, self.tpr)
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        plt.text(0.5, 0.2, f"AUC: {self.results['AUC']}", fontsize=14,
+                verticalalignment='top', bbox=props)
+        plt.xlabel("FPR")
+        plt.ylabel("TPR")
+        plt.title(f"ROC curve - {self.model.name}")
+        plt.savefig(file_name.with_suffix(".png"))
         return self
 
     def print(self):
         print(tabulate(self.results.items(), tablefmt="github", headers=["Metric", "Value"]))
+        roc_curve_results = copy.deepcopy(self.results)
+        roc_curve_results.update({"fpr": self.fpr.tolist(), "tpr": self.tpr.tolist(), "thresholds": self.thresholds.tolist()})
+        print(roc_curve_results)
         return self
 
     def _get_basic_data(self) -> Tuple[List[pd.DataFrame], List[pd.DataFrame]]:
