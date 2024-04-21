@@ -26,7 +26,7 @@ class BigNN(SurroundingsProteinModel):
         return (self.model.predict(protein) > 0.5).flatten()
 
     def predict_surroundings_proba(self, protein: np.ndarray) -> np.ndarray:
-        return self.model.predict_proba(protein).flatten()
+        return self.model.predict(protein).flatten()
 
     @property
     def name(self) -> str:
