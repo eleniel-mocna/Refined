@@ -9,7 +9,6 @@ from sklearn.utils import shuffle
 
 from config.config import Config
 from models.common.ProteinModel import ProteinModel
-from models.common.cutoff import get_best_cutoff
 from models.evaluation.ModelEvaluator import ModelEvaluator
 
 
@@ -52,12 +51,11 @@ class RandomForestModel(ProteinModel):
     def name(self) -> str:
         return "RFC_baseline"
 
-    def __init__(self, random_forest: RandomForestClassifier, cutoff: float):
-        self.cutoff: float = cutoff
+    def __init__(self, random_forest: RandomForestClassifier):
         self.random_forest: RandomForestClassifier = random_forest
 
     def predict(self, protein: np.ndarray) -> np.ndarray:
-        return self.random_forest.predict_proba(protein)[:, 1] > self.cutoff
+        return self.random_forest.predict_proba(protein)[:, 1] > 0.5
 
     @staticmethod
     def from_data(data: List[pd.DataFrame], labels: List[pd.Series]) -> 'RandomForestModel':
@@ -82,10 +80,7 @@ class RandomForestModel(ProteinModel):
                                                                        n_estimators=200,
                                                                        max_features=6)
         random_forest.fit(train_data_combined, train_labels_combined)
-        print("RFC trained, finding best cutoff...")
-        best_cutoff = get_best_cutoff(test_data_combined, test_labels_combined, random_forest)
-        print(best_cutoff)
-        return RandomForestModel(random_forest, best_cutoff)
+        return RandomForestModel(random_forest)
 
 
 if __name__ == '__main__':

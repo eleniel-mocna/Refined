@@ -6,7 +6,6 @@ from sklearn.ensemble import RandomForestClassifier
 
 from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
-from models.common.cutoff import get_best_cutoff
 from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
@@ -16,7 +15,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 
 class PcaRfc(SurroundingsProteinModel):
     def predict_surroundings(self, protein: np.ndarray) -> np.ndarray:
-        return self.rfc.predict_proba(protein)[:, 1] > self.cutoff
+        return self.rfc.predict_proba(protein)[:, 1] > 0.5
 
     def predict_surroundings_proba(self, protein: np.ndarray) -> np.ndarray:
         return self.rfc.predict_proba(protein)
@@ -25,9 +24,8 @@ class PcaRfc(SurroundingsProteinModel):
     def name(self) -> str:
         return "pca_rfc" + self.name_suffix
 
-    def __init__(self, rfc: RandomForestClassifier, pca: PCA, cutoff: float, name_suffix:str = ""):
+    def __init__(self, rfc: RandomForestClassifier, pca: PCA, name_suffix: str = ""):
         self.name_suffix = name_suffix
-        self.cutoff: float = cutoff
         self.rfc: RandomForestClassifier = rfc
         self.pca: PCA = pca
 
@@ -56,13 +54,10 @@ class PcaRfc(SurroundingsProteinModel):
         best_params = PcaRfc.get_best_hyperparameters(reduced_train_data, train_labels)
         print(f"Best params: {best_params}")
         random_forest = RandomForestClassifier(n_jobs=-1,
-                                                verbose=0,
-                                                **best_params)
+                                               verbose=0,
+                                               **best_params)
         random_forest.fit(reduced_train_data, train_labels)
-        print("RFC trained, finding best cutoff...")
-        best_cutoff = get_best_cutoff(reduced_test_data, test_labels, random_forest)
-        print(best_cutoff)
-        return PcaRfc(random_forest, pca, best_cutoff, f"_{pca_dimension}")
+        return PcaRfc(random_forest, pca)
 
     @staticmethod
     def get_best_hyperparameters(data: np.ndarray, labels: np.ndarray):

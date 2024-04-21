@@ -5,7 +5,6 @@ from sklearn.ensemble import RandomForestClassifier
 
 from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
-from models.common.cutoff import get_best_cutoff
 from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
@@ -15,7 +14,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 
 class RFCSurrounding(SurroundingsProteinModel):
     def predict_surroundings(self, protein: np.ndarray) -> np.ndarray:
-        return self.rfc.predict_proba(protein)[:, 1] > self.cutoff
+        return self.rfc.predict_proba(protein)[:, 1] > 0.5
 
     def predict_surroundings_proba(self, protein: np.ndarray) -> np.ndarray:
         return self.rfc.predict_proba(protein)[:, 1]
@@ -24,8 +23,7 @@ class RFCSurrounding(SurroundingsProteinModel):
     def name(self) -> str:
         return "rfc_surrounding"
 
-    def __init__(self, rfc: RandomForestClassifier, cutoff: float):
-        self.cutoff: float = cutoff
+    def __init__(self, rfc: RandomForestClassifier):
         self.rfc: RandomForestClassifier = rfc
 
     @staticmethod
@@ -49,10 +47,7 @@ class RFCSurrounding(SurroundingsProteinModel):
                                                                        max_depth=10)
 
         random_forest.fit(train_data, train_labels)
-        print("RFC trained, finding best cutoff...")
-        best_cutoff = get_best_cutoff(test_data, test_labels, random_forest)
-        print(best_cutoff)
-        return RFCSurrounding(random_forest, best_cutoff)
+        return RFCSurrounding(random_forest)
 
     @staticmethod
     def get_best_hyperparameters(data: np.ndarray, labels: np.ndarray):
