@@ -26,24 +26,14 @@ def main():
         data, labels = pickle.load(file)
 
     refined = RandomRefined(38, 30)
-    indices = np.arange(data.shape[0])
-    np.random.shuffle(indices)
 
-    data = data[indices]
-    labels = labels[indices]
-    split_data, split_labels = np.array_split(data, 5), np.array_split(labels, 5)
-    for i in range(5):
-        print(f"Training RandomCNN number {i}.")
-        train_data = np.concatenate([split_data[j] for j in range(5) if j != i])
-        train_labels = np.concatenate([split_labels[j] for j in range(5) if j != i])
-
-        rfc_surrounding_model, _ = generate_refined_model(np.array(train_data), np.array(train_labels), refined, best_hyperparams)
-        rfc_surrounding_model.save_model()
-        return (ModelEvaluator(rfc_surrounding_model)
-                .calculate_basic_metrics()
-                .calculate_session_metrics()
-                .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
-                .print())
+    rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined, best_hyperparams)
+    rfc_surrounding_model.save_model()
+    return (ModelEvaluator(rfc_surrounding_model)
+            .calculate_basic_metrics()
+            .calculate_session_metrics()
+            .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
+            .print())
 
 
 config = Config.get_instance()
