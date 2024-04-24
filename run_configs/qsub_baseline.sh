@@ -1,6 +1,6 @@
 #!/bin/bash
-#PBS -N big_rfc
-#PBS -l select=1:ncpus=16:mem=64gb:scratch_local=256gb
+#PBS -N baseline_model
+#PBS -l select=1:ncpus=2:mem=64gb:scratch_local=256gb
 #PBS -l walltime=4:00:00
 #PBS -j oe
 
@@ -15,7 +15,7 @@ python3 -m venv CHOSEN_VENV_DIR
 source CHOSEN_VENV_DIR/bin/activate
 CHOSEN_VENV_DIR/bin/pip install --no-cache-dir --upgrade pip setuptools
 pip3 install --no-cache-dir -r requirements.txt
-cp -r /storage/brno12-cerit/home/eleniel/refined/data/surroundings/ data
+cp -r /storage/brno12-cerit/home/eleniel/refined/data/extracted/ data
 
 export PYTHONPATH=$PYTHONPATH:src
 python3 src/models/run_scripts/baseline_model.py
