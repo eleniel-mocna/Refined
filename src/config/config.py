@@ -53,6 +53,15 @@ class Config:
                 return json.load(f)
 
     @property
+    def train_lengths(self) -> List[int]:
+        try:
+            with open(Config.get_lengths_path(self._config_data['train_dataset']), 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            with open(f"/storage/brno12-cerit/home/eleniel/refined/data/lengths/{self._config_data['train_dataset']}.json") as f:
+                return json.load(f)
+
+    @property
     def surroundings_size(self) -> int:
         return self._config_data['surroundings_size']
 

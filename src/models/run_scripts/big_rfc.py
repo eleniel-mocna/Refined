@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
+from models.common.data_splitter import DataSplitter
 from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
@@ -60,7 +61,7 @@ class RFCSurrounding(SurroundingsProteinModel):
                                            max_features=6)
         tuner = GridSearchCV(estimator, param_grid, cv=5, n_jobs=-1)
         tuner.fit(data, labels)
-        return tuner.best_params_
+        return tuner.best_estimator_
 
 
 def main():
@@ -68,14 +69,16 @@ def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
     labels = np.vectorize(booleanize)(labels)
-
-    rfc_surrounding_model = RFCSurrounding.from_data(np.array(data), np.array(labels))
-    rfc_surrounding_model.save_model()
-    (ModelEvaluator(rfc_surrounding_model)
-     .calculate_basic_metrics()
-     .calculate_session_metrics()
-     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
-     .print())
+    splitter = DataSplitter(data, labels, config.train_lengths, 5)
+    for i in range(5):
+        data, labels = splitter.get_split(i)
+        rfc_surrounding_model = RFCSurrounding.from_data(np.array(data), np.array(labels))
+        rfc_surrounding_model.save_model()
+        (ModelEvaluator(rfc_surrounding_model)
+         .calculate_basic_metrics()
+         .calculate_session_metrics()
+         .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
+         .print())
 
 
 if __name__ == '__main__':

@@ -8,7 +8,8 @@ from keras_tuner import HyperParameters
 
 from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
-from models.evaluation.ModelEvaluator import ModelEvaluator
+from models.common.data_splitter import DataSplitter
+from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 
 np.set_printoptions(threshold=sys.maxsize)
 import pickle
@@ -77,13 +78,16 @@ best_hyperparams = {'initial_size': 32, 'growth_factor': 0.3, 'layers': 1, 'lear
 def main():
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
-
-    rfc_surrounding_model, _ = generate_nn_model(np.array(data), np.array(labels), best_hyperparams)
-    rfc_surrounding_model.save_model()
-    (ModelEvaluator(rfc_surrounding_model)
-     .calculate_basic_metrics()
-     .calculate_session_metrics()
-     .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
+    labels = np.vectorize(booleanize)(labels)
+    splitter = DataSplitter(data, labels, config.train_lengths, 5)
+    for i in range(5):
+        data, labels = splitter.get_split(i)
+        rfc_surrounding_model, _ = generate_nn_model(np.array(data), np.array(labels), best_hyperparams)
+        rfc_surrounding_model.save_model()
+        (ModelEvaluator(rfc_surrounding_model)
+         .calculate_basic_metrics()
+         .calculate_session_metrics()
+         .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt"))
 
 
 config = Config.get_instance()
