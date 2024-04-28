@@ -1,10 +1,8 @@
-import json
 import sys
 
 import numpy as np
 
 from config.config import Config
-from config.constants import REFINED_ORDERS
 from models.common.data_splitter import DataSplitter
 from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
 from models.refined.Refined import Refined
@@ -31,8 +29,8 @@ def main():
     for i in range(5):
         data, labels = splitter.get_split(i)
         refined = Refined(data, 38, 30, "temp", hca_starts=1)
-        refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
-
+        # refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
+        refined.run()
         rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined, best_params)
         rfc_surrounding_model.save_model()
         (ModelEvaluator(rfc_surrounding_model)
