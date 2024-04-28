@@ -31,10 +31,10 @@ class ModelEvaluator:
                 # predict by batches
                 print("MemoryError, predicting by batches")
                 n = 10000
-                self.y_pred = np.array([])
+                self.y_pred_prob = np.array([])
                 for i in range(0, len(self.data), n):
                     print(f"Predicting batch {i // n}/{len(self.data) // n}")
-                    self.y_pred = np.concatenate((self.y_pred, model.predict_surroundings_proba(self.data[i:i + n])))
+                    self.y_pred_prob = np.concatenate((self.y_pred_prob, model.predict_surroundings_proba(self.data[i:i + n])))
 
         else:
             print("Using basic data")
