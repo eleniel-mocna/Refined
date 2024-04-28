@@ -31,13 +31,14 @@ def main():
         data, labels = splitter.get_split(i)
         refined = RandomRefined(38, 30)
 
-        rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined, best_hyperparams, "_random")
+        rfc_surrounding_model, _ = generate_refined_model(np.array(data), np.array(labels), refined, best_hyperparams,
+                                                          "_random")
         rfc_surrounding_model.save_model()
-        return (ModelEvaluator(rfc_surrounding_model)
-                .calculate_basic_metrics()
-                .calculate_session_metrics()
-                .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
-                .print())
+        (ModelEvaluator(rfc_surrounding_model)
+         .calculate_basic_metrics()
+         .calculate_session_metrics()
+         .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
+         .print())
 
 
 config = Config.get_instance()
