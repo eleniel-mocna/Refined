@@ -1,0 +1,11 @@
+These are metrics for a REFINED model, but with a smaller CNN with the following hyperparameters:
+```
+best_params = {"initial_size": 64,
+               "growth_factor": 0.5,
+               "last_dense": 16,
+               "cnn_layers": 2,
+               "cnn_stride": 3,
+               "kernel_size": 5,
+               "learning_rate": 0.0005,
+               }
+```
