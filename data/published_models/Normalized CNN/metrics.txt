@@ -1,0 +1,41 @@
+| Metric                         | Value               |
+|--------------------------------|---------------------|
+| model_name                     | Refined_random_norm |
+| N predictions                  | 1659349             |
+| Accuracy                       | 0.8861487245901857  |
+| Accuracy CI max                | 0.8866320164283396  |
+| Accuracy CI min                | 0.8856654327520318  |
+| Precision                      | 0.5637050564798199  |
+| Precision CI max               | 0.5641883483179738  |
+| Precision CI min               | 0.5632217646416661  |
+| Recall                         | 0.8686595906446735  |
+| Recall CI max                  | 0.8691428824828273  |
+| Recall CI min                  | 0.8681762988065196  |
+| F1_score                       | 0.5826201712218115  |
+| F1_score CI max                | 0.5831034630599654  |
+| F1_score CI min                | 0.5821368793836577  |
+| AUC                            | 0.9371017664296135  |
+| TP                             | 27690               |
+| FP                             | 184050              |
+| TN                             | 1442740             |
+| FN                             | 4869                |
+| N Proteins                     | 420                 |
+| True proteins without LBS      | 43                  |
+| Pred proteins without LBS      | 0                   |
+| Pred&True proteins without LBS | 0                   |
+| Session Accuracy Median        | 0.8899795678637583  |
+| Session Accuracy Mean          | 0.8864091146919204  |
+| Session Accuracy CI min        | 0.8815941709081738  |
+| Session Accuracy CI max        | 0.891224058475667   |
+| Session Precision Median       | 0.14385201051048413 |
+| Session Precision Mean         | 0.16940140045270172 |
+| Session Precision CI min       | 0.15581388841949256 |
+| Session Precision CI max       | 0.18298891248591087 |
+| Session Recall Median          | 0.957712924359738   |
+| Session Recall Mean            | 0.7786046970203924  |
+| Session Recall CI min          | 0.7473598765638854  |
+| Session Recall CI max          | 0.8098495174768994  |
+| Session F1_score Median        | 0.24421160869411057 |
+| Session F1_score Mean          | 0.25515612826927125 |
+| Session F1_score CI min        | 0.23974611726308273 |
+| Session F1_score CI max        | 0.27056613927545975 |
