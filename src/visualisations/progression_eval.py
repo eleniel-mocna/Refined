@@ -23,10 +23,10 @@ if __name__ == '__main__':
     for i in results.keys():
         # x.append(int(i))
         x.append(np.log(orders[int(i)]["score"]))
-        min_loss = np.log(min([x["val_loss"] for x in stats[i]]))
+        min_loss = np.log(min([x["loss"] for x in stats[i]]))
         y.append(min_loss)
         y_min.append(min_loss)
-        y_max.append(max([x["val_loss"] for x in stats[i]]))
+        y_max.append(max([x["loss"] for x in stats[i]]))
         # y.append(stats[i][-1]["loss"])
         # y.append(results[i][mean])
         # y_min.append(results[i][ci_min])
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     p = np.poly1d(z)
     ax.plot(x, p(x), "r--")
     # ax.fill_between(x, y_min, y_max, color='b', alpha=.1)
-    file_to_save = DATA_FOLDER / "progression.png"
+    file_to_save = DATA_FOLDER / "progression_train.png"
     plt.title("Validation loss per REFINED evolution")
     correlation_label = "Pearson's\ncorrelation\ncoefficient: %.3f" % correlation
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
