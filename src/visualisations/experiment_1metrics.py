@@ -17,6 +17,9 @@ refined_models = {
 
 
 def main():
+    """
+    Create plots for F1_score, Precision, Accuracy, Recall
+    """
     root = DATA_FOLDER / "for_transfer"
     metrics_files = glob.glob(str(root / '**/metrics.json'), recursive=True)
     metrics = [json.load(open(file)) for file in metrics_files]

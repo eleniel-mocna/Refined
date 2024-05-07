@@ -18,16 +18,21 @@ refined_models = {
 
 
 def main():
+    """
+
+    Main method that loads metrics from JSON files, creates an AUC plots as a barplot and a/b testing matrix
+
+    """
     root = DATA_FOLDER / "for_transfer"
     metrics_files = glob.glob(str(root / '**/metrics.json'), recursive=True)
     metrics = [json.load(open(file)) for file in metrics_files]
-    create_auc_plot(metrics)
+    create_auc_plots(metrics)
 
 
 alpha = 0.01
 
 
-def create_auc_plot(metrics):
+def create_auc_plots(metrics):
     aucs = dict()
     for metric in metrics:
         model_name = metric["model_name"].lower()

@@ -15,6 +15,9 @@ def do_the_plot(x, y, z, c, name: str):
 
 
 if __name__ == '__main__':
+    """
+    Create point cloud scatter plots of PCA and targets.
+    """
     path_1fbl = DATA_FOLDER / "raw/joined/b210/1fbl"
     df = _load_arffs(path_1fbl)[0]
     df["@@class@@"] = df["@@class@@"] == b'1'

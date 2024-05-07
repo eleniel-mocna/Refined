@@ -17,6 +17,13 @@ colors = ["b", "r", "g", "y", "c"]
 
 
 def main():
+    """
+    @return: None
+
+    This method plots the training and validation loss for each run in the given data, and saves the plot as an image file.
+
+    The input data is loaded from the file "training_logs.json" located in the DATA_FOLDER.
+    """
     data = json.load(open(DATA_FOLDER / "training_logs.json"))
     for model, values in data.items():
         for i, run in enumerate(values):

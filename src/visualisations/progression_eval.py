@@ -7,6 +7,9 @@ from scipy.stats import pearsonr
 from config.constants import PROGRESSION_EVAL_RESULTS, DATA_FOLDER, PROGRESSION_MODEL_STATS, REFINED_ORDERS
 
 if __name__ == '__main__':
+    """
+    Create a scatter plot between REFINED score and CNN performance.
+    """
     results = json.load(open(PROGRESSION_EVAL_RESULTS))
     stats = json.load(open(PROGRESSION_MODEL_STATS))
     orders = json.load(open(REFINED_ORDERS))

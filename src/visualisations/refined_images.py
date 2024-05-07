@@ -14,6 +14,10 @@ interesting_refines = [0, 1, 2, 4, 7, 10, 15, 35]
 
 
 def main():
+    """
+    Create plots for REFINED images.
+    @return:
+    """
     config = Config.get_instance()
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
