@@ -1,10 +1,8 @@
 import glob
 import json
-from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import stats
 
 from config.constants import DATA_FOLDER, IMAGES_FOLDER
 
@@ -24,6 +22,7 @@ def main():
     metrics = [json.load(open(file)) for file in metrics_files]
     create_metrics_plot(metrics)
 
+
 alpha = 0.01
 
 
@@ -41,13 +40,14 @@ def create_metrics_plot(metrics):
                 aucs[model_name].append(auc)
             else:
                 aucs[model_name] = [auc]
+        models = list(refined_models.values())
+
         aucs = {refined_models[k]: v for k, v in aucs.items()}
         mean_aucs = {model: np.mean(vals) for model, vals in aucs.items()}
-        stds = {model: np.std(vals) for model, vals in aucs.items()}
-        models = list(refined_models.values())
         means = [mean_aucs[model] for model in models]
-        stds = [stds[model] for model in models]
 
+        stds = {model: np.std(vals) for model, vals in aucs.items()}
+        stds = [stds[model] for model in models]
 
         axs[metric_index].bar(models, means, yerr=stds, capsize=10)
         axs[metric_index].set_xticks(range(len(models)), models, rotation=45, ha='right')
@@ -62,6 +62,7 @@ def create_metrics_plot(metrics):
 
     plt.tight_layout()
     plt.savefig(IMAGES_FOLDER / f"metric_comparisons.png", dpi=1200, bbox_inches='tight')
+
 
 if __name__ == '__main__':
     main()

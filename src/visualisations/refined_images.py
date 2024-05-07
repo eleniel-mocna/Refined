@@ -37,6 +37,7 @@ def main():
         score_string = "%.2E" % score
         ax.set_title(f"Epoch: {i}, score: {score_string}")
     plt.tight_layout()
+    # noinspection PyUnboundLocalVariable
     plt.colorbar(im, ax=axs.ravel().tolist())
     plt.savefig(IMAGES_FOLDER / "combined_plot.png", dpi=1200, bbox_inches='tight')
     plt.clf()
