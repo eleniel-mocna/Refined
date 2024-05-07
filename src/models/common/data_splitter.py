@@ -16,6 +16,8 @@ class DataSplitter:
         self.protein_lengths = protein_lengths
         self.splits = splits
         self.data_splits = np.zeros(len(data))
+        if self.splits == 1:
+            return
         if self.protein_lengths:
             proteins_splits = _hash_function(np.arange(len(protein_lengths))) % splits
             current_index = 0
@@ -33,6 +35,8 @@ class DataSplitter:
         @return:
         """
         assert 0 <= split < self.splits
+        if self.splits==1:
+            return self.data, self.labels
         return self.data[self.data_splits != split], self.labels[self.data_splits != split]
 
 if __name__ == '__main__':
