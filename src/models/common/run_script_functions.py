@@ -15,6 +15,10 @@ def get_train_surroundings() -> Tuple[np.array, np.array]:
             data, labels = pickle.load(file)
     except FileNotFoundError:
         raise FileNotFoundError(f"Surroundings for the train dataset have not been  created.")
+    if config.train_size:
+        points_length = sum(config.train_lengths[:config.train_size])
+        data = data[:points_length]
+        labels = labels[:points_length]
     labels = np.vectorize(booleanize)(labels)
     return data, labels
 

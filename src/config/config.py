@@ -49,7 +49,8 @@ class Config:
             with open(Config.get_lengths_path(self._config_data['test_dataset']), 'r') as f:
                 return json.load(f)
         except FileNotFoundError:
-            with open(f"/storage/brno12-cerit/home/eleniel/refined/data/lengths/{self._config_data['test_dataset']}.json") as f:
+            with open(
+                    f"/storage/brno12-cerit/home/eleniel/refined/data/lengths/{self._config_data['test_dataset']}.json") as f:
                 return json.load(f)
 
     @property
@@ -58,7 +59,8 @@ class Config:
             with open(Config.get_lengths_path(self._config_data['train_dataset']), 'r') as f:
                 return json.load(f)
         except FileNotFoundError:
-            with open(f"/storage/brno12-cerit/home/eleniel/refined/data/lengths/{self._config_data['train_dataset']}.json") as f:
+            with open(
+                    f"/storage/brno12-cerit/home/eleniel/refined/data/lengths/{self._config_data['train_dataset']}.json") as f:
                 return json.load(f)
 
     @property
@@ -100,6 +102,14 @@ class Config:
     @property
     def model_splits(self) -> int:
         return self._config_data['model_splits']
+
+    @property
+    def train_size(self) -> int:
+        return self._config_data['train_size']
+
+    @property
+    def test_size(self) -> int:
+        return self._config_data['test_size']
 
     @staticmethod
     def get_extracted_path(dataset_name: str) -> Path:
