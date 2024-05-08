@@ -45,7 +45,7 @@ class RFCSurrounding(SurroundingsProteinModel):
 
         print("Data prepared, training RFC...")
         random_forest: RandomForestClassifier = (
-            RandomForestClassifier(n_jobs=15, verbose=3, **hyperparameters) if hyperparameters
+            RandomForestClassifier(n_jobs=-1, verbose=3, **hyperparameters) if hyperparameters
             else RFCSurrounding.get_best_hyperparameters(data, labels))
 
         random_forest.fit(train_data, train_labels)
@@ -57,7 +57,7 @@ class RFCSurrounding(SurroundingsProteinModel):
                       'min_samples_split': [2, 5, 10],
                       'n_estimators': [100, 200, 300, 500, 1000],
                       "max_features": ["sqrt", "log2", None]}
-        estimator = RandomForestClassifier(n_jobs=15,
+        estimator = RandomForestClassifier(n_jobs=-1,
                                            verbose=0,
                                            max_features=6)
         tuner = GridSearchCV(estimator, param_grid, cv=5, n_jobs=-1)

@@ -133,7 +133,7 @@ class Refined(ImageTransformer):
             self._log(error_msg)
             raise AttributeError(error_msg)
         self.hof = HOF(logging_freq=self.hca_logging)
-        executor: joblib.Parallel = joblib.Parallel(n_jobs=15, verbose=100, backend='threading')
+        executor: joblib.Parallel = joblib.Parallel(n_jobs=-1, verbose=100, backend='threading')
         hofs = executor(
             joblib.delayed(lambda x: self._compute_1_refined())(i) for i in range(self.hca_starts))
         best_fitness = float("infinity")
