@@ -17,7 +17,7 @@ from models.common.ProteinModel import ProteinModel, SurroundingsProteinModel
 class ModelEvaluator:
     def __init__(self, model: ProteinModel):
         self.model = model
-        self.results = {"model_name":model.name}
+        self.results = {"model_name": model.name}
         self.config = Config.get_instance()
 
         self.is_surroundings_model = isinstance(model, SurroundingsProteinModel)
@@ -34,14 +34,16 @@ class ModelEvaluator:
                 self.y_pred_prob = np.array([])
                 for i in range(0, len(self.data), n):
                     print(f"Predicting batch {i // n}/{len(self.data) // n}")
-                    self.y_pred_prob = np.concatenate((self.y_pred_prob, model.predict_surroundings_proba(self.data[i:i + n])))
+                    self.y_pred_prob = np.concatenate(
+                        (self.y_pred_prob, model.predict_surroundings_proba(self.data[i:i + n])))
 
         else:
             print("Using basic data")
             self.data, self.labels = self._get_basic_data()
             self.y_pred_prob = self.model.predict_proba(self.flat_data)
-            # calculate the best threshold
-            # Calculate the ROC
+
+        # calculate the best threshold
+        # Calculate the ROC
         self.fpr: np.ndarray
         self.tpr: np.ndarray
         self.thresholds: np.ndarray
@@ -163,7 +165,8 @@ class ModelEvaluator:
         print(tabulated)
         json_file = file_name.with_suffix(".json")
         roc_curve_results = copy.deepcopy(self.results)
-        roc_curve_results.update({"fpr": self.fpr.tolist(), "tpr": self.tpr.tolist(), "thresholds": self.thresholds.tolist()})
+        roc_curve_results.update(
+            {"fpr": self.fpr.tolist(), "tpr": self.tpr.tolist(), "thresholds": self.thresholds.tolist()})
         try:
             with open(json_file, "w") as file:
                 json.dump(roc_curve_results, file, indent=4)
@@ -185,7 +188,8 @@ class ModelEvaluator:
     def print(self):
         print(tabulate(self.results.items(), tablefmt="github", headers=["Metric", "Value"]))
         roc_curve_results = copy.deepcopy(self.results)
-        roc_curve_results.update({"fpr": self.fpr.tolist(), "tpr": self.tpr.tolist(), "thresholds": self.thresholds.tolist()})
+        roc_curve_results.update(
+            {"fpr": self.fpr.tolist(), "tpr": self.tpr.tolist(), "thresholds": self.thresholds.tolist()})
         print(roc_curve_results)
         return self
 
@@ -197,6 +201,9 @@ class ModelEvaluator:
         print("Preparing data...")
         labels = list(map(lambda x: np.vectorize(booleanize)(x["@@class@@"].to_numpy()), arffs))
         data = list(map(lambda x: x.drop("@@class@@", axis=1), arffs))
+        if self.config.test_size:
+            data = data[:self.config.test_size]
+            labels = labels[:self.config.test_size]
         return data, labels
 
     def _get_surroundings_data(self) -> Tuple[np.array, np.array]:
@@ -204,6 +211,10 @@ class ModelEvaluator:
         labels: np.array
         with open(self.config.test_surroundings, "rb") as file:
             data, labels = pickle.load(file)
+        if self.config.test_size:
+            points_length = sum(self.config.train_lengths[:self.config.train_size])
+            data = data[:points_length]
+            labels = labels[:points_length]
         labels = np.vectorize(booleanize)(labels)
         return data, labels
 
