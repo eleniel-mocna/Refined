@@ -68,12 +68,12 @@ class ModelEvaluator:
         return self.labels if self.is_surroundings_model else np.concatenate(self.labels)
 
     def split_by_protein(self, labels: np.array):
-        proteins = [labels[i:j] for i, j in zip([0] + list(np.cumsum(self.get_proteins_lengths())[:-1]),
-                                                np.cumsum(self.get_proteins_lengths()))]
+        protein_lengths = np.cumsum(self.get_proteins_lengths())
+        proteins = [labels[i:j] for i, j in zip([0] + list(protein_lengths[:-1]), protein_lengths)]
         return proteins
 
     def get_proteins_lengths(self) -> List[int]:
-        return self.config.test_lengths
+        return self.config.test_lengths[:self.config.test_size]
 
     def calculate_basic_metrics(self) -> 'ModelEvaluator':
         self.results["N predictions"] = len(self.y_pred)
@@ -212,7 +212,7 @@ class ModelEvaluator:
         with open(self.config.test_surroundings, "rb") as file:
             data, labels = pickle.load(file)
         if self.config.test_size:
-            points_length = sum(self.config.train_lengths[:self.config.train_size])
+            points_length = sum(self.config.test_lengths[:self.config.test_size])
             data = data[:points_length]
             labels = labels[:points_length]
         labels = np.vectorize(booleanize)(labels)
