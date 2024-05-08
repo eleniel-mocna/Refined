@@ -35,7 +35,7 @@ def train_surroundings_model(train_function, **kwargs):
                      f"  data shape:            :\t{data.shape}\n"
                      f"  cross-validation splits:\t{config.model_splits}\n"
                      f"  with parameters:\n")
-    logger_string += "\n".join([f"    {k}:\t{v}" for k, v in kwargs.items()])
+    logger_string += "\n".join([f"    {k}:\t\t\t{v}" for k, v in kwargs.items()])
     print(logger_string)
 
     splitter = DataSplitter(data, labels, config.train_lengths, config.model_splits)
