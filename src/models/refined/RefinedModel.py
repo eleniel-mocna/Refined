@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from typing import Any, Tuple, Dict, Optional
+from typing import Any, Dict, Optional
 
 import keras_tuner as kt
 import numpy as np
@@ -60,7 +60,7 @@ def generate_refined_model(data,
                            labels,
                            image_transformer: ImageTransformer,
                            hyperparams: Optional[Dict[str, Any]] = None,
-                           name_suffix: str = "") -> Tuple[RefinedModel, Any]:
+                           name_suffix: str = "") -> RefinedModel:
     stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
     if hyperparams is not None:
         hyper_parameters = kt.HyperParameters()
@@ -68,7 +68,7 @@ def generate_refined_model(data,
             hyper_parameters.Fixed(key, value)
         model = cnn_model_builder(hyper_parameters)
         model.fit(image_transformer.transform(data), labels, epochs=50, validation_split=0.2, callbacks=[stop_early])
-        return RefinedModel(model, image_transformer, name_suffix), None
+        return RefinedModel(model, image_transformer, name_suffix)
 
     tuner = kt.Hyperband(cnn_model_builder,
                          objective='val_accuracy',
@@ -78,7 +78,7 @@ def generate_refined_model(data,
     tuner.search(image_transformer.transform(data), labels, epochs=50, validation_split=0.2, callbacks=[stop_early])
     print(f"Best hyperparams: \n{tuner.get_best_hyperparameters()[0].values}")
     model = tuner.get_best_models(1)[0]
-    return RefinedModel(model, image_transformer), tuner
+    return RefinedModel(model, image_transformer)
 
 
 def cnn_model_builder(hp: HyperParameters):

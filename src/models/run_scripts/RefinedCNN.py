@@ -42,10 +42,10 @@ def train_refined_model(data,
         refined.run()
     else:
         refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
-    refined_model, _ = generate_refined_model(np.array(data),
-                                              np.array(labels),
-                                              refined,
-                                              hyperparameters)
+    refined_model = generate_refined_model(np.array(data),
+                                           np.array(labels),
+                                           refined,
+                                           hyperparameters)
     return refined_model
 
 

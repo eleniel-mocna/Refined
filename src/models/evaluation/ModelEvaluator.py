@@ -73,7 +73,7 @@ class ModelEvaluator:
         return proteins
 
     def get_proteins_lengths(self) -> List[int]:
-        return self.config.test_lengths[:self.config.test_size]
+        return self.config.test_lengths[:self.config.test_size] if self.config.test_size else self.config.test_lengths
 
     def calculate_basic_metrics(self) -> 'ModelEvaluator':
         self.results["N predictions"] = len(self.y_pred)

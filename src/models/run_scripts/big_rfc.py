@@ -1,15 +1,18 @@
+"""
+This is a python script that trains a surroundings RFC model. It accepts a CLI argument:
+--tune-hyperparameters: If specified, hyperparameter tuning will be done,
+    otherwise previously found hyperparameters will be used.
+"""
 import sys
+from typing import Dict, Optional
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
-from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
-from models.common.data_splitter import DataSplitter
-from models.evaluation.ModelEvaluator import ModelEvaluator, booleanize
+from models.common.run_script_functions import train_surroundings_model
 
 np.set_printoptions(threshold=sys.maxsize)
-import pickle
 from sklearn.model_selection import train_test_split, GridSearchCV
 
 
@@ -28,9 +31,11 @@ class RFCSurrounding(SurroundingsProteinModel):
         self.rfc: RandomForestClassifier = rfc
 
     @staticmethod
-    def from_data(data: np.ndarray, labels: np.ndarray) -> 'RFCSurrounding':
+    def RFCSurrounding_from_data(data: np.ndarray, labels: np.ndarray,
+                                 hyperparameters: Optional[Dict] = None) -> 'RFCSurrounding':
         """
         Create a GeneralModel implementation using a RandomForestClassifier.
+        @param hyperparameters: If None, does hyperparameter tuning
         @param data: Numpy array of atom neighborhoods
         @param labels: Numpy array of labels for each atom
         @return: trained RandomForestModel
@@ -38,14 +43,10 @@ class RFCSurrounding(SurroundingsProteinModel):
         train_data, test_data, train_labels, test_labels = \
             train_test_split(data, labels, test_size=0.20, random_state=42)
 
-        train_data = train_data
-        test_data = test_data
         print("Data prepared, training RFC...")
-        random_forest: RandomForestClassifier = RandomForestClassifier(n_jobs=15, verbose=3,
-                                                                       n_estimators=500,
-                                                                       min_samples_split=5,
-                                                                       max_features='sqrt',
-                                                                       max_depth=10)
+        random_forest: RandomForestClassifier = (
+            RandomForestClassifier(n_jobs=15, verbose=3, **hyperparameters) if hyperparameters
+            else RFCSurrounding.get_best_hyperparameters(data, labels))
 
         random_forest.fit(train_data, train_labels)
         return RFCSurrounding(random_forest)
@@ -64,22 +65,13 @@ class RFCSurrounding(SurroundingsProteinModel):
         return tuner.best_estimator_
 
 
-def main():
-    config = Config.get_instance()
-    with open(config.train_surroundings, "rb") as file:
-        data, labels = pickle.load(file)
-    labels = np.vectorize(booleanize)(labels)
-    splitter = DataSplitter(data, labels, config.train_lengths, 5)
-    for i in range(5):
-        data, labels = splitter.get_split(i)
-        rfc_surrounding_model = RFCSurrounding.from_data(np.array(data), np.array(labels))
-        rfc_surrounding_model.save_model()
-        (ModelEvaluator(rfc_surrounding_model)
-         .calculate_basic_metrics()
-         .calculate_session_metrics()
-         .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
-         .print())
+def main(tune_hyperparameters: bool = False):
+    train_surroundings_model(RFCSurrounding.RFCSurrounding_from_data,
+                             hyperparameters=None if tune_hyperparameters else {"n_estimators": 500,
+                                                                                "min_samples_split": 5,
+                                                                                "max_features": 'sqrt',
+                                                                                "max_depth": 10})
 
 
 if __name__ == '__main__':
-    main()
+    main(tune_hyperparameters="--tune-hyperparameters" in sys.argv)

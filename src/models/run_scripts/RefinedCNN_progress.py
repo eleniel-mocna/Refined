@@ -1,3 +1,6 @@
+"""
+This is a python script that trains a REFINED CNN on each progression of the pretrained REFINED core permutations.
+"""
 import json
 import sys
 
@@ -32,7 +35,7 @@ def main():
         refined = Refined(data, 38, 30, "temp", hca_starts=1)
         refined.from_pretrained(np.array(refined_orders[-1]["order"]))
 
-        rfc_surrounding_model, _ = generate_refined_model(
+        rfc_surrounding_model = generate_refined_model(
             np.array(data),
             np.array(labels),
             refined,

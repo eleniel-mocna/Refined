@@ -1,3 +1,6 @@
+"""
+This is a python script that trains a P2Rank RFC - baseline model.
+"""
 import pickle
 from typing import List
 
@@ -12,6 +15,10 @@ from models.evaluation.ModelEvaluator import ModelEvaluator
 
 
 def main():
+    """
+    Train the baseline model
+    @return:
+    """
     config = Config.get_instance()
     with open(config.train_extracted, "rb") as file:
         arffs = pickle.load(file)
@@ -20,8 +27,11 @@ def main():
     print("Preparing data...")
     labels = list(map(lambda x: x["@@class@@"] == b'1', arffs))
     data = list(map(lambda x: x.drop("@@class@@", axis=1), arffs))
-    for i in range(5):
-        train_data, _,  train_labels, _ = train_test_split(data, labels, test_size=0.20, random_state=42)
+    if config.train_size:
+        labels = labels[:config.train_size]
+        data = data[:config.train_size]
+    for i in range(config.model_splits):
+        train_data, _,  train_labels, _ = train_test_split(data, labels, test_size=0.20, random_state=i)
         random_forest = RandomForestModel.from_data(train_data, train_labels)
         random_forest.save_model()
         (ModelEvaluator(random_forest)
