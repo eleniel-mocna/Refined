@@ -2,5 +2,6 @@
   "extract_dataset": "*",
   "train_dataset": "chen11",
   "test_dataset": "coach420",
-  "surroundings_size": 30
+  "surroundings_size": 30,
+  "model_splits": 1
 }

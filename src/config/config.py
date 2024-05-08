@@ -97,6 +97,10 @@ class Config:
             f"Unknown dataset name: {self._config_data['extract_dataset']},"
             f"if you want to add a new dataset, add it to `config/constants.py`#DATASET_NAMES.")
 
+    @property
+    def model_splits(self) -> int:
+        return self._config_data['model_splits']
+
     @staticmethod
     def get_extracted_path(dataset_name: str) -> Path:
         return EXTRACTED_DATA_FOLDER / f"{dataset_name}.pckl"
