@@ -31,9 +31,9 @@ def evaluate_model(model):
 def train_surroundings_model(train_function, **kwargs):
     config = Config.get_instance()
     data, labels = get_train_surroundings()
-    logger_string = (f"{train_function.__name__}:"
-                     f"  data shape:            :\t{data.shape}"
-                     f"  cross-validation splits:\t{config.model_splits}"
+    logger_string = (f"{train_function.__name__}:\n"
+                     f"  data shape:            :\t{data.shape}\n"
+                     f"  cross-validation splits:\t{config.model_splits}\n"
                      f"  with parameters:\n")
     logger_string += "\n".join([f"    {k}:\t{v}" for k, v in kwargs.items()])
     print(logger_string)
