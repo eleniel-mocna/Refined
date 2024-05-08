@@ -23,7 +23,7 @@ if __name__ == '__main__':
     tune_hyperparams = "--tune-hyperparameters" in sys.argv
     run_refined = "--run-refined" in sys.argv
 
-    if "--skip-preprocessing" not in sys.argv and False:
+    if "--skip-preprocessing" not in sys.argv:
         run_extract_arffs()
         run_extract_surroundings()
         run_calculate_lengths()
