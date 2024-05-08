@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 
+from config.config import Config
 from config.constants import REFINED_ORDERS
 from models.common.run_script_functions import train_surroundings_model
 from models.refined.Refined import Refined
@@ -37,7 +38,7 @@ def train_refined_model(data,
                         labels,
                         run_refined: bool,
                         hyperparameters: Optional[Dict[str, Any]]) -> RefinedModel:
-    refined = Refined(data, 38, 30, "temp", hca_starts=1)
+    refined = Refined(data, 38, Config.default().surroundings_size, "temp", hca_starts=1)
     if run_refined:
         refined.run()
     else:

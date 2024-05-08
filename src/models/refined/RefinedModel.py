@@ -10,6 +10,7 @@ from keras.layers import Conv2D, Flatten, Dense, InputLayer
 from keras_tuner import HyperParameters
 from keras_tuner.src.backend import keras
 
+from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
 from models.refined.image_transformer import ImageTransformer
 
@@ -92,7 +93,7 @@ def cnn_model_builder(hp: HyperParameters):
     hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 5e-3, 1e-3, 5e-4, 1e-4, 5e-5])
 
     model = tf.keras.models.Sequential([])
-    model.add(InputLayer(input_shape=(38, 30, 1)))
+    model.add(InputLayer(input_shape=(38, Config.default().surroundings_size, 1)))
     for i in range(hp_cnn_layers):
         try:
             model.add(Conv2D(filters=int(hp_initial_size * (hp_growth_factor ** i)),

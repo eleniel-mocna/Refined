@@ -11,6 +11,7 @@ import keras_tuner as kt
 import numpy as np
 from keras_tuner import HyperParameters
 
+from config.config import Config
 from models.common.ProteinModel import SurroundingsProteinModel
 from models.common.run_script_functions import train_surroundings_model
 
@@ -43,7 +44,7 @@ def nn_model_builder(hp: HyperParameters):
     hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 5e-3, 1e-3, 5e-4, 1e-4, 5e-5])
 
     model = tf.keras.models.Sequential([])
-    model.add(InputLayer(input_shape=(38 * 30)))
+    model.add(InputLayer(input_shape=(38 * Config.default().surroundings_size)))
     for i in range(hp_layers):
         try:
             model.add(Dense(units=int(hp_initial_size * (hp_growth_factor ** i)), activation=relu, name=f"Dense_{i}"))

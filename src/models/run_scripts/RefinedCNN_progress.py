@@ -26,13 +26,14 @@ best_params = {"initial_size": 1024,
 
 
 def main():
+    config = Config.get_instance()
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
 
     refined_orders = json.load(open(REFINED_ORDERS))
     for i in range(len(refined_orders)):
         print(f"Running REFINED on evolution {i}")
-        refined = Refined(data, 38, 30, "temp", hca_starts=1)
+        refined = Refined(data, 38, config.surroundings_size, "temp", hca_starts=1)
         refined.from_pretrained(np.array(refined_orders[-1]["order"]))
 
         rfc_surrounding_model = generate_refined_model(
@@ -49,7 +50,6 @@ def main():
          .print())
 
 
-config = Config.get_instance()
 
 if __name__ == '__main__':
     main()

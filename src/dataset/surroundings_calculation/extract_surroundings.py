@@ -22,7 +22,7 @@ def main():
         for i in range(num_elements):
             arffs[i][CLASS] = (arffs[i][CLASS] == b'1')
 
-        surroundings_dataset = SurroundingsExtractor.extract_surroundings(arffs, 30)
+        surroundings_dataset = SurroundingsExtractor.extract_surroundings(arffs, config.surroundings_size)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "wb") as file:
             pickle.dump(surroundings_dataset, file)

@@ -51,13 +51,13 @@ class SurroundingsProteinModel(ProteinModel, ABC):
         ...
 
     def predict(self, protein: pd.DataFrame) -> np.ndarray:
-        input_dataset = SurroundingsExtractor.get_complete_dataset(protein, 30)
+        input_dataset = SurroundingsExtractor.get_complete_dataset(protein, Config.default().surroundings_size)
         input_data = np.stack(
             [sample.drop(CLASS, axis=1, errors="ignore").to_numpy().flatten() for sample in input_dataset])
         return self.predict_surroundings(input_data)
 
     def predict_proba(self, protein: pd.DataFrame) -> np.ndarray:
-        input_dataset = SurroundingsExtractor.get_complete_dataset(protein, 30)
+        input_dataset = SurroundingsExtractor.get_complete_dataset(protein, Config.default().surroundings_size)
         input_data = np.stack(
             [sample.drop(CLASS, axis=1, errors="ignore").to_numpy().flatten() for sample in input_dataset])
         return self.predict_surroundings_proba(input_data)

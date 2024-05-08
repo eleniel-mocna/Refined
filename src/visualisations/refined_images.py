@@ -27,7 +27,7 @@ def main():
     orders = json.load(open(REFINED_ORDERS))
     refines = []
     scores = []
-    refined = Refined(data, 38, 30, "temp", hca_starts=1)
+    refined = Refined(data, 38, config.surroundings_size, "temp", hca_starts=1)
     fig, axs = plt.subplots(2, 4, figsize=(14, 7))
     axs = axs.flatten()
     for i, ax in zip(interesting_refines, axs):
@@ -35,7 +35,7 @@ def main():
         refines.append(copy.deepcopy(refined))
         score = orders[i]["score"]
         scores.append(score)
-        transformed_data = refined.transform(true_samples).mean(axis=0).reshape((38, 30))
+        transformed_data = refined.transform(true_samples).mean(axis=0).reshape((38, config.surroundings_size))
         im = ax.imshow(transformed_data, cmap='viridis', interpolation='nearest')
         ax.axis('off')
         score_string = "%.2E" % score

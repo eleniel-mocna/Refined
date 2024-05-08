@@ -7,6 +7,7 @@ import sys
 
 import numpy as np
 
+from config.config import Config
 from models.common.run_script_functions import train_surroundings_model
 from models.refined.Random_refined import RandomRefinedNormalized
 from models.refined.RefinedModel import generate_refined_model
@@ -24,7 +25,7 @@ best_params = {"initial_size": 128,
 
 
 def train_normalized_cnn(data, labels, hyperparams):
-    refined = RandomRefinedNormalized(data, 38, 30)
+    refined = RandomRefinedNormalized(data, 38, Config.default().surroundings_size)
     return generate_refined_model(np.array(data),
                            np.array(labels),
                            image_transformer=refined,
