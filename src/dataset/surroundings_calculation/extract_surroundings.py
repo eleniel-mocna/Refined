@@ -1,33 +1,35 @@
 import pickle
-import sys
-from typing import Optional
 
 from config.config import Config
 from config.constants import CLASS
+from dataset.surroundings_calculation.calculate_lengths import main as calculate_lengths
 from dataset.surroundings_calculation.surroundings_extractor import SurroundingsExtractor
 
 
-def main(dataset: Optional[str] = None):
+def main():
     config = Config.get_instance()
-    config._config_data['test_dataset'] = dataset
-    input_path = config.test_extracted
-    output_path = config.test_surroundings
+    for input_path in config.extracted_dataset:
+        print(f"Extracting surroundings for dataset {input_path.name}...")
+        output_path = config.get_surroundings_path(input_path.name.split(".")[0])
+        with open(input_path, "rb") as file:
+            arffs = pickle.load(file)
 
-    # print("Loading the original dataset")
-    with open(input_path, "rb") as file:
-        arffs = pickle.load(file)
+        num_elements = len(arffs)
+        if config.surroundings_limit:
+            num_elements = min(num_elements, config.surroundings_limit)
 
-    for i in range(len(arffs)):
-        arffs[i][CLASS] = (arffs[i][CLASS] == b'1')
+        arffs = arffs[:num_elements]
+        for i in range(num_elements):
+            arffs[i][CLASS] = (arffs[i][CLASS] == b'1')
 
-    surroundings_dataset = SurroundingsExtractor.extract_surroundings(arffs, 30)
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "wb") as file:
-        pickle.dump(surroundings_dataset, file)
+        surroundings_dataset = SurroundingsExtractor.extract_surroundings(arffs, 30)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "wb") as file:
+            pickle.dump(surroundings_dataset, file)
+        print(f"Surroundings extracted succesfully from {input_path.name}.")
 
 
 if __name__ == '__main__':
-    dataset_name = sys.argv[1] if len(sys.argv)>1 else None
-    print(f"Dataset name: {dataset_name}")
-    main(dataset_name)
+    main()
+    # Just calculate all the lengths... It is not efficient, but that's life.
+    calculate_lengths()

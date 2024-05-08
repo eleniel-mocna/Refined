@@ -23,9 +23,9 @@ best_params = {"initial_size": 128,
                }
 
 
-def train_random_cnn(data, labels, hyperparams):
+def train_normalized_cnn(data, labels, hyperparams):
     refined = RandomRefinedNormalized(data, 38, 30)
-    generate_refined_model(np.array(data),
+    return generate_refined_model(np.array(data),
                            np.array(labels),
                            image_transformer=refined,
                            hyperparams=hyperparams,
@@ -33,7 +33,7 @@ def train_random_cnn(data, labels, hyperparams):
 
 
 def main(tune_hyperparameters: bool = False):
-    train_surroundings_model(train_random_cnn,
+    train_surroundings_model(train_normalized_cnn,
                              hyperparams=None if tune_hyperparameters else best_params,
                              )
 

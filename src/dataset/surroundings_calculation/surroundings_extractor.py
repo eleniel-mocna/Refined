@@ -50,7 +50,7 @@ class SurroundingsExtractor:
             range(n_samples))
 
     @staticmethod
-    def extract_surroundings(proteins: List[pd.DataFrame], surrounding_size: int, name="surroundings_dataset",
+    def extract_surroundings(proteins: List[pd.DataFrame], surrounding_size: int,
                              function=None) -> Tuple[np.ndarray, np.ndarray]:
         if function is None:
             function = SurroundingsExtractor.get_complete_dataset

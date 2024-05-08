@@ -4,7 +4,7 @@ This is a python script that trains a NN model. It accepts a CLI argument:
     otherwise previously found hyperparameters will be used.
 """
 import sys
-from typing import Any, Tuple, Optional, Dict
+from typing import Any, Optional, Dict
 
 import keras
 import keras_tuner as kt
@@ -83,7 +83,7 @@ best_hyperparams = {'initial_size': 32, 'growth_factor': 0.3, 'layers': 1, 'lear
 
 def main(tune_hyperparameters: bool = False):
     train_surroundings_model(generate_nn_model,
-                             hyperparams=best_hyperparams if tune_hyperparameters else None)
+                             hyperparams=None if tune_hyperparameters else best_hyperparams)
 
 
 if __name__ == '__main__':

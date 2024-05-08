@@ -100,6 +100,16 @@ class Config:
             f"if you want to add a new dataset, add it to `config/constants.py`#DATASET_NAMES.")
 
     @property
+    def extracted_dataset(self) -> List[Path]:
+        if self._config_data['extract_dataset'] == "*":
+            return [EXTRACTED_DATA_FOLDER / f"{name}.pckl" for name in DATASET_NAMES]
+        if self._config_data['extract_dataset'] in DATASET_NAMES:
+            return [EXTRACTED_DATA_FOLDER / f"{self._config_data['extract_dataset']}.pckl"]
+        raise ValueError(
+            f"Unknown dataset name: {self._config_data['extract_dataset']},"
+            f"if you want to add a new dataset, add it to `config/constants.py`#DATASET_NAMES.")
+
+    @property
     def model_splits(self) -> int:
         return self._config_data['model_splits']
 
@@ -110,6 +120,14 @@ class Config:
     @property
     def test_size(self) -> int:
         return self._config_data['test_size']
+
+    @property
+    def extraction_size(self) -> int:
+        return self._config_data['extraction_size']
+
+    @property
+    def surroundings_limit(self) -> int:
+        return self._config_data['surroundings_limit']
 
     @staticmethod
     def get_extracted_path(dataset_name: str) -> Path:

@@ -24,6 +24,6 @@ CLASS = "@@class@@"
 
 DATASET_PICKLE_FILE = "allArffs.pckl"
 
-DATASET_NAMES = ["chen11", "coach420", "holo4k", "joined"]
+DATASET_NAMES = ["chen11", "coach420"]
 CONFIG_JSON = "config.json"
 MODEL_PKL = "model.pkl"

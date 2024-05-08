@@ -26,7 +26,7 @@ best_hyperparams = {
 
 def train_random_cnn(data, labels, hyperparams):
     refined = RandomRefined(38, 30)
-    generate_refined_model(np.array(data),
+    return generate_refined_model(np.array(data),
                            np.array(labels),
                            image_transformer=refined,
                            hyperparams=hyperparams,
