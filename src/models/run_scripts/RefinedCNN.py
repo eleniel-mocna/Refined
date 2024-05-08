@@ -30,7 +30,7 @@ best_params = {"initial_size": 1024,
 def main(run_refined: bool = True, tune_hyperparameters: bool = False):
     train_surroundings_model(train_refined_model,
                              run_refined=run_refined,
-                             hyperparameters=best_params if tune_hyperparameters else None)
+                             hyperparameters=None if tune_hyperparameters else best_params)
 
 
 def train_refined_model(data,
