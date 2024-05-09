@@ -1,4 +1,3 @@
-import pickle
 from time import time
 from typing import List, Tuple
 
@@ -10,7 +9,13 @@ from config.constants import X_POSITION, Y_POSITION, Z_POSITION, CLASS
 
 
 class SurroundingsExtractor:
-    def __init__(self, protein:pd.DataFrame):
+    """
+    The SurroundingsExtractor class provides methods to extract surrounding encoding from a protein dataset.
+    To obtain a surroundings-based encoding of a protein, use the SurroundingsExtractor.get_complete_dataset()
+    static method.
+    """
+
+    def __init__(self, protein: pd.DataFrame):
         self.protein = protein
 
     @staticmethod
