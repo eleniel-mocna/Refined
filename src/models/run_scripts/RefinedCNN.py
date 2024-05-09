@@ -42,7 +42,13 @@ def train_refined_model(data,
     if run_refined:
         refined.run()
     else:
-        refined.from_pretrained(np.array(json.load(open(REFINED_ORDERS))[-1]["order"]))
+        permutation = np.array(json.load(open(REFINED_ORDERS))[-1]["order"])
+        if permutation.shape[0] == 38 * Config.default().surroundings_size:
+            refined.from_pretrained(permutation)
+        else:
+            print("W: Pretrained REFINED could not be loaded as it has a wrong shape. Training a new REFINED model.")
+            refined.run()
+
     refined_model = generate_refined_model(np.array(data),
                                            np.array(labels),
                                            refined,
