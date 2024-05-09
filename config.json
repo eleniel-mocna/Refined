@@ -6,6 +6,6 @@
   "surroundings_limit": 0,
   "train_size": 0,
   "test_size": 0,
-  "surroundings_size": 31,
+  "surroundings_size": 30,
   "model_splits": 1
 }

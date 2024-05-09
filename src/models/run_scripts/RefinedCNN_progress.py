@@ -27,6 +27,11 @@ best_params = {"initial_size": 1024,
 
 def main():
     config = Config.get_instance()
+    if config.surroundings_size != 30:
+        print(
+            "W: Incompatible surroundings size set for the progression experiment. "
+            "To run it again, set the surroundings size to 30 and rerun all the steps of the pipeline again. Exiting")
+        return
     with open(config.train_surroundings, "rb") as file:
         data, labels = pickle.load(file)
 
@@ -48,7 +53,6 @@ def main():
          .calculate_session_metrics()
          .save_to_file(rfc_surrounding_model.get_result_folder() / "metrics.txt")
          .print())
-
 
 
 if __name__ == '__main__':

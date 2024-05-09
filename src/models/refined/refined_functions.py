@@ -24,7 +24,7 @@ def fitness(order: NDArray[int],
 
 class HOF:
     """
-    Hall of Fame: class for registering better and better individuals.
+    Hall of Fame: class for registering better and better individuals for the HCA.
     """
 
     def __init__(self, logging_freq=10, verb=True):
@@ -123,6 +123,10 @@ def HCARefined(individual: NDArray[int],
                rows: int,
                columns: int,
                dists: np.ndarray) -> Tuple[np.ndarray, float]:
+    """
+    Run the HCA algorithm for refined starting from the given individual
+    @return: (the best REFINED individual, its REFINED score)
+    """
     for i in range(100000):
         best_fitness = fitness_refined(individual, dists, rows, columns)
         orig_fitness = best_fitness
