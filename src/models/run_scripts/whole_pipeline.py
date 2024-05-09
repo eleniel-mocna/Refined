@@ -18,6 +18,7 @@ from models.run_scripts.RandomCNN_Normalized import main as run_random_cnn_norma
 from models.run_scripts.RefinedCNN import main as run_refined_cnn
 from models.run_scripts.baseline_model import main as run_baseline_model
 from models.run_scripts.big_rfc import main as run_big_rfc
+from models.run_scripts.RefinedCNN_progress import main as run_refined_cnn_progress
 
 if __name__ == '__main__':
     tune_hyperparams = "--tune-hyperparameters" in sys.argv
@@ -34,3 +35,4 @@ if __name__ == '__main__':
     run_nn(tune_hyperparams)
     run_random_cnn(tune_hyperparams)
     run_big_rfc(tune_hyperparams)
+    run_refined_cnn_progress()
