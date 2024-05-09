@@ -1,0 +1,4 @@
+This is an assortment of different Metacentrum qsub scripts. It contains a good setup for each step,
+but these scripts are not created for reproducibility purposes, instead, they just get the stuff done.
+They can be a good first step for debugging, but might have some issues in them. I'm leaving them here as breadcrumbs,
+for when someone will try to run this code in some time and this might be a good first step.

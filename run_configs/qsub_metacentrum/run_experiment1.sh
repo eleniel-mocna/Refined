@@ -1,3 +1,6 @@
+#!/bin/bash
+# Run the models comparisons via qsub.
+
 qsub qsub_NN.sh
 qsub qsub_big_rfc.sh
 qsub qsub_refined.sh

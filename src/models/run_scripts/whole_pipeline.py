@@ -28,7 +28,7 @@ if __name__ == '__main__':
         run_extract_arffs()
         run_extract_surroundings()
         run_calculate_lengths()
-
+        print("Data processed successfully")
     run_baseline_model()
     run_refined_cnn(run_refined, tune_hyperparams)
     run_random_cnn_normalized(tune_hyperparams)
@@ -36,3 +36,4 @@ if __name__ == '__main__':
     run_random_cnn(tune_hyperparams)
     run_big_rfc(tune_hyperparams)
     run_refined_cnn_progress()
+    print("Models trained successfully")
