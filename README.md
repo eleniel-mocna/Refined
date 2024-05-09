@@ -41,7 +41,7 @@ export export PYTHONPATH=$PYTHONPATH:src
 ### Running the code - 1 step
 
 To run all the computations required, run the `run_configs/all.sh` script. This will run all the required scripts and
-will save the results in the `data` folder as described in the [Output section](#Output).
+will save the results in the `data` folder as described in the [Output section](#Outputs-and-data).
 
 ### Running the code - multiple steps
 
@@ -91,7 +91,7 @@ This can be used to retrain the REFINED model and run the hyperparameter tuning 
 For more precise running, you can also use all the run scripts in `src/models/run_scripts/`. These also accept the CLI
 arguments for custom logic, but this is model specific, so I will not go into details with this.
 
-# Output and data structure
+## Outputs and data
 
 All data used in this pipeline is stored in the `data` folder. The following folders and files are included in there:
 
@@ -104,3 +104,60 @@ All data used in this pipeline is stored in the `data` folder. The following fol
 - `images/`: Folder with images and visualizations for the thesis.
 - `published_models/`: Folder with evaluations of pretrained models, shown as examples.
 
+## Configuration
+
+The configuration of the pipeline is done via the `config.json` file. In this file the following items can be set:
+
+- `extract_dataset`: The dataset to be processed by data preprocessing steps. By default, "*" for processing all
+  datasets.
+- `train_dataset`: The dataset to be used as the training dataset. By default, "chen11".
+- `test_dataset`: The dataset to be used at the testing dataset. By default, "coach420".
+- `extraction_size`: Maximum limit for how many proteins should be read from arffs. Set to 0 for using all proteins.
+- `surroundings_limit`: Maximum limit for how many proteins should the surroundings be calculated for. Set to 0 for
+  using
+  all proteins.
+- `train_size`: Limit for how many proteins should be used for the dataset training. Most models use a part of
+  this dataset as the validation dataset (for hyperparameter training etc.)
+- `test_size`: Limit on how many proteins should be used for model testing.
+- `surroundings_size`: The size of the surroundings for each SAS point. Default is 30. **If changed, remove
+  the `surroundings` folder and rerun the computations**.
+- `model_splits`: Number of "cross-validation" splits for model training. If set to 1, all data is used for 1 model. If
+  set to a larger number _k_, _k_ models are trained, where each model is trained on _(k-1)/k_ part of the training
+  dataset. For example, if _k=3_, 3 models are trained (A,B,C) and the train dataset is split into 3 parts of the same
+  size (a,b,c) then model A is trained on dataset parts b, c; B - a,c; C - a,b.
+
+# Adding new models and metrics
+
+This codebase was made for running experiments for my bachelor thesis. Nonetheless, it can be used to validate other
+methods on these datasets - or try new approaches for the existing models. Here, I will shortly describe the
+architecture and some common edits.
+
+## Data preprocessing
+
+The data preprocessing has 3 stages. These can be all done by the `Run Whole Pipeline` run configuration or individual
+scripts as described below.
+
+1) **Reading the data**: This part of code is done by the `Extract arffs to pickle` run configuration. It is a simple
+   script that reads all the data in the arff format, loads it as a pd.DataFrame and saves the whole list into
+   the `data/extracted` folder.
+2) **Extracting surroundings**: This part of code is done by the `Extract Surroundings` run configuration. It uses
+   the `SurroundingsExtractor.extract_surroundings()` method to transform a list of pd.DataFrames and convert it into a
+   np.array of data and a np.array of labels. This script also saves the protein lengths for evaluation purposes.
+
+## Training the models
+
+Each model has a script in the `src/models/run_scripts` folder. This is mostly run by the `Run Whole Pipeline` run
+configuration, but can also be run separately.
+
+Each model needs to implement the `ProteinModel` interface. For models using the surroundings
+dataset, `SurroundingsProteinModel` interface is better, as it uses the data in the surroundings form. For each
+surroundings model a method such as `train_refined_model` is implemented. This method
+accepts `data: np.array`, `labels:np.array` and then any model-specific keyword arguments and returns an
+implemented `SurroundingsProteinModel`. This method can be then passed to the `train_surroundings_model`, which then
+trains the model on the configured data, does "cross-validation" reruns and evaluates the data.
+
+## Evaluating the models
+
+All model evaluation is taken care of by the `ModelEvaluator` class. It accepts a model and then can calculate and save
+all the needed metrics. This class is called in the `train_surroundings_model`. It should be used the same way as there
+in all uses.
