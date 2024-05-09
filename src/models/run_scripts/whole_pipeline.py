@@ -2,6 +2,7 @@
 Run the whole pipeline and train all the models based on the config file
 It recognizes the following arguments:
 --skip-preprocessing: If specified, only the models will be trained
+--skip-model-training: If specified, only data preprocessing will be donw
 --run-refined: If specified, a new REFINED image transformer will be trained, otherwise a pretrained one will be used
 --tune-hyperparameters: If specified, hyperparameter tuning will be done,
     otherwise previously found hyperparameters will be used.
@@ -16,9 +17,9 @@ from models.run_scripts.NN import main as run_nn
 from models.run_scripts.RandomCNN import main as run_random_cnn
 from models.run_scripts.RandomCNN_Normalized import main as run_random_cnn_normalized
 from models.run_scripts.RefinedCNN import main as run_refined_cnn
+from models.run_scripts.RefinedCNN_progress import main as run_refined_cnn_progress
 from models.run_scripts.baseline_model import main as run_baseline_model
 from models.run_scripts.big_rfc import main as run_big_rfc
-from models.run_scripts.RefinedCNN_progress import main as run_refined_cnn_progress
 
 if __name__ == '__main__':
     tune_hyperparams = "--tune-hyperparameters" in sys.argv
@@ -29,11 +30,12 @@ if __name__ == '__main__':
         run_extract_surroundings()
         run_calculate_lengths()
         print("Data processed successfully")
-    run_baseline_model()
-    run_refined_cnn(run_refined, tune_hyperparams)
-    run_random_cnn_normalized(tune_hyperparams)
-    run_nn(tune_hyperparams)
-    run_random_cnn(tune_hyperparams)
-    run_big_rfc(tune_hyperparams)
-    run_refined_cnn_progress()
-    print("Models trained successfully")
+    if "--skip-model-training" not in sys.argv:
+        run_baseline_model()
+        run_refined_cnn(run_refined, tune_hyperparams)
+        run_random_cnn_normalized(tune_hyperparams)
+        run_nn(tune_hyperparams)
+        run_random_cnn(tune_hyperparams)
+        run_big_rfc(tune_hyperparams)
+        run_refined_cnn_progress()
+        print("Models trained successfully")

@@ -15,6 +15,27 @@ from models.common.ProteinModel import ProteinModel, SurroundingsProteinModel
 
 
 class ModelEvaluator:
+    """
+    The ModelEvaluator class is used to evaluate the performance of a protein model.
+
+    Attributes:
+        - model: The ProteinModel object that is being evaluated.
+        - results: a dictionary to store the evaluation results.
+        - config: the Config instance for the model evaluation.
+        - is_surroundings_model: a boolean indicating whether the model is a SurroundingsProteinModel
+            or a simple protein based one (P2Rank RFC)
+
+    Methods:
+        - __init__(self, model: ProteinModel): Initializes a new instance of ModelEvaluator.
+        - flat_data(self): Returns the flattened
+        - flat_labels(self): Returns the flattened labels
+        - split_by_protein(self, labels: np.array): Splits the labels into separate arrays based on protein.
+        - get_proteins_lengths(self) -> List[int]: Retrieves the lengths of the proteins.
+        - calculate_basic_metrics(self) -> 'ModelEvaluator': Calculates basic evaluation metrics.
+        - calculate_session_metrics(self) -> 'ModelEvaluator': Calculates session-based evaluation metrics.
+        - save_to_file(self, file_name: Path): Saves the result of the evaluation to a given file.
+    """
+
     def __init__(self, model: ProteinModel):
         self.model = model
         self.results = {"model_name": model.name}
@@ -70,6 +91,10 @@ class ModelEvaluator:
     def split_by_protein(self, labels: np.array):
         protein_lengths = np.cumsum(self.get_proteins_lengths())
         proteins = [labels[i:j] for i, j in zip([0] + list(protein_lengths[:-1]), protein_lengths)]
+
+        # Filter out proteins, if they are not loaded, but the lengths are calculated for them.
+        # This could become the case because of a change in configuration.
+        proteins = [protein for protein in proteins if len(protein)]
         return proteins
 
     def get_proteins_lengths(self) -> List[int]:
